@@ -20,9 +20,14 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install Android build tools
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
+      - name: Install Android build tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "build-tools;36.0.0"
+          
       - name: Build debug APK
         run: |
           chmod +x gradlew
