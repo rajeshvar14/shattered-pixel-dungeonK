@@ -21,12 +21,18 @@ jobs:
           java-version: "17"
 
       
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+    
 
+      
       - name: Install Android build tools
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "build-tools;36.0.0"
+          SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            echo "sdkmanager not found at expected path"
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platforms;android-36" "build-tools;36.0.0"
           
       - name: Build debug APK
         run: |
