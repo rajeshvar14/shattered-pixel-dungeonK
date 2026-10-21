@@ -33,6 +33,10 @@ public class CoOpScene extends PixelScene {
     private static volatile Socket activeSocket;
     private static volatile boolean cancelled;
 
+    // Only keep one options/status window active. Replacing status windows
+    // prevents older modal windows from remaining stacked behind newer ones.
+    private WndOptions activeOptions;
+
     @Override
     public void create() {
         super.create();
@@ -40,7 +44,7 @@ public class CoOpScene extends PixelScene {
     }
 
     private void showMenu() {
-        addToFront(new WndOptions(
+        showOptions(new WndOptions(
                 "Co-op Multiplayer",
                 "Connect two phones over the same Wi-Fi network or hotspot. This test will exchange sample dungeon data; real dungeon play comes later.",
                 "Host LAN Game",
@@ -239,8 +243,16 @@ public class CoOpScene extends PixelScene {
                 && String.valueOf(TEST_MAP_HEIGHT).equals(parts[3]);
     }
 
+    private void showOptions(WndOptions options) {
+        if (activeOptions != null) {
+            activeOptions.hide();
+        }
+        activeOptions = options;
+        addToFront(options);
+    }
+
     private void showMessage(String title, String message, String button, final Runnable action) {
-        addToFront(new WndOptions(title, message, button) {
+        showOptions(new WndOptions(title, message, button) {
             @Override protected void onSelect(int index) {
                 if (action != null) action.run();
             }
@@ -251,7 +263,7 @@ public class CoOpScene extends PixelScene {
         if (Gdx.app == null) return;
         Gdx.app.postRunnable(new Runnable() {
             @Override public void run() {
-                if (ShatteredPixelDungeon.scene() instanceof CoOpScene) {
+                if (!cancelled && ShatteredPixelDungeon.scene() instanceof CoOpScene) {
                     showMessage(title, message, button, action);
                 }
             }
@@ -308,5 +320,5 @@ public class CoOpScene extends PixelScene {
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
-            }
+                        }
                         
