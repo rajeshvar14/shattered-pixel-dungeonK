@@ -235,12 +235,13 @@ public class TitleScene extends PixelScene {
 			align(btnPlay);
 			btnCoop.setRect(btnPlay.right()+2, btnPlay.top(), firstRowWidth, BTN_HEIGHT);
 			btnSupport.setRect(btnCoop.right()+2, btnPlay.top(), buttonAreaWidth - 2*firstRowWidth - 4, BTN_HEIGHT);
-			btnRankings.setRect(btnPlay.left(), btnPlay.bottom()+ GAP, (float) (Math.floor(buttonAreaWidth/3f)-1), BTN_HEIGHT);
-			btnJournal.setRect(btnRankings.right()+2, btnRankings.top(), btnRankings.width(), BTN_HEIGHT);
-			btnNews.setRect(btnJournal.right()+2, btnJournal.top(), btnRankings.width(), BTN_HEIGHT);
-			btnSettings.setRect(btnRankings.left(), btnRankings.bottom() + GAP, btnRankings.width(), BTN_HEIGHT);
-			btnChanges.setRect(btnSettings.right()+2, btnSettings.top(), btnRankings.width(), BTN_HEIGHT);
-			btnAbout.setRect(btnChanges.right()+2, btnSettings.top(), btnRankings.width(), BTN_HEIGHT);
+			float menuColumnWidth = (buttonAreaWidth - 4) / 3f;
+			btnRankings.setRect(btnPlay.left(), btnPlay.bottom()+ GAP, menuColumnWidth, BTN_HEIGHT);
+			btnJournal.setRect(btnRankings.right()+2, btnRankings.top(), menuColumnWidth, BTN_HEIGHT);
+			btnNews.setRect(btnJournal.right()+2, btnJournal.top(), menuColumnWidth, BTN_HEIGHT);
+			btnSettings.setRect(btnRankings.left(), btnRankings.bottom() + GAP, menuColumnWidth, BTN_HEIGHT);
+			btnChanges.setRect(btnSettings.right()+2, btnSettings.top(), menuColumnWidth, BTN_HEIGHT);
+			btnAbout.setRect(btnChanges.right()+2, btnSettings.top(), menuColumnWidth, BTN_HEIGHT);
 		} else {
 			btnPlay.setRect(btnAreaLeft, insets.top + topRegion+GAP, (buttonAreaWidth/2)-1, BTN_HEIGHT);
 			align(btnPlay);
@@ -502,4 +503,5 @@ public class TitleScene extends PixelScene {
 			ShatteredPixelDungeon.switchNoFade(SupporterScene.class);
 		}
 	}
-}
+							   }
+					
