@@ -227,7 +227,10 @@ public class TitleScene extends PixelScene {
 		GAP /= landscape() ? 3 : 5;
 		GAP = Math.max(GAP, 2);
 
-		float buttonAreaWidth = landscape() ? PixelScene.MIN_WIDTH_L-6 : PixelScene.MIN_WIDTH_P-2;
+		float designedButtonWidth = landscape() ? PixelScene.MIN_WIDTH_L-6 : PixelScene.MIN_WIDTH_P-2;
+		// Keep the menu inside the actual usable screen width on narrow phones and
+		// when Android display insets reduce the available area.
+		float buttonAreaWidth = Math.min(designedButtonWidth, w);
 		float btnAreaLeft = insets.left + (w - buttonAreaWidth) / 2f;
 		if (landscape()) {
 			float firstRowWidth = (buttonAreaWidth - 4) / 3f;
@@ -503,5 +506,5 @@ public class TitleScene extends PixelScene {
 			ShatteredPixelDungeon.switchNoFade(SupporterScene.class);
 		}
 	}
-							   }
-					
+			}
+				
