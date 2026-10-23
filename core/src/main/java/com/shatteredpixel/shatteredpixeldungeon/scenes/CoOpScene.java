@@ -1,7 +1,8 @@
 /*
- * Local Wi-Fi co-op connection and shared-data test.
- * This stage verifies socket connectivity and exchange of a small test snapshot.
- * It does not yet load or synchronize the real dungeon.
+ * Step 2: real dungeon terrain transfer over local Wi-Fi.
+ * The host generates one real floor and sends its terrain map; the joining
+ * phone validates the received dimensions, cells, and checksum. This does not
+ * yet display a playable dungeon or synchronize movement/turns.
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
@@ -25,16 +26,11 @@ public class CoOpScene extends PixelScene {
 
     private static final int PORT = 47832;
     private static final int CONNECT_TIMEOUT_MS = 8000;
-    private static final int TEST_LEVEL = 1;
-    private static final int TEST_MAP_WIDTH = 32;
-    private static final int TEST_MAP_HEIGHT = 32;
+    private static final int SOCKET_TIMEOUT_MS = 20000;
 
     private static volatile ServerSocket hostServer;
     private static volatile Socket activeSocket;
     private static volatile boolean cancelled;
-
-    // Only keep one options/status window active. Replacing status windows
-    // prevents older modal windows from remaining stacked behind newer ones.
     private WndOptions activeOptions;
 
     @Override
@@ -46,18 +42,12 @@ public class CoOpScene extends PixelScene {
     private void showMenu() {
         showOptions(new WndOptions(
                 "Co-op Multiplayer",
-                "Connect two phones over the same Wi-Fi network or hotspot. This test will exchange sample dungeon data; real dungeon play comes later.",
-                "Host LAN Game",
-                "Join LAN Game",
-                "Back to Title"
-        ) {
-            @Override
-            protected void onSelect(int index) {
-                if (index == 0) {
-                    startHost();
-                } else if (index == 1) {
-                    askForHostAddress();
-                } else {
+                "Step 2 test: the host generates a real dungeon floor and sends its terrain map to the joining phone. Both phones must use the same Wi-Fi network or hotspot.",
+                "Host LAN Game", "Join LAN Game", "Back to Title") {
+            @Override protected void onSelect(int index) {
+                if (index == 0) startHost();
+                else if (index == 1) askForHostAddress();
+                else {
                     stopNetworking();
                     ShatteredPixelDungeon.switchScene(TitleScene.class);
                 }
@@ -68,7 +58,26 @@ public class CoOpScene extends PixelScene {
     private void startHost() {
         stopNetworking();
         cancelled = false;
-        showMessage("Starting Host", "Starting the local Wi-Fi host…", "Cancel", new Runnable() {
+        final String snapshot;
+        final CoOpProtocol.LevelSnapshot parsed;
+        try {
+            showMessage("Preparing Dungeon", "Generating a real dungeon floor for the map-sharing test…", "Please wait", null);
+            snapshot = CoOpLevelSnapshot.generateFreshLevelSnapshot();
+            parsed = CoOpProtocol.parseLevelSnapshot(snapshot);
+            if (parsed == null) throw new IllegalStateException("The generated map could not be encoded correctly.");
+        } catch (final Exception e) {
+            showMessage("Dungeon Generation Failed", readableError(e)
+                    + "
+
+No co-op session was started. Your normal single-player mode has not been changed.",
+                    "Back to Co-op", new Runnable() {
+                        @Override public void run() { ShatteredPixelDungeon.switchScene(CoOpScene.class); }
+                    });
+            return;
+        }
+
+        showMessage("Starting Host", "Real dungeon generated (" + parsed.width + " × " + parsed.height
+                + "). Starting the local Wi-Fi host…", "Cancel", new Runnable() {
             @Override public void run() {
                 stopNetworking();
                 ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -77,48 +86,56 @@ public class CoOpScene extends PixelScene {
 
         Thread thread = new Thread(new Runnable() {
             @Override public void run() {
+                ServerSocket server = null;
+                Socket socket = null;
                 try {
-                    ServerSocket server = new ServerSocket(PORT);
+                    server = new ServerSocket(PORT);
                     hostServer = server;
-                    if (cancelled) {
-                        server.close();
-                        return;
-                    }
+                    if (cancelled) return;
                     final String address = findLocalIPv4();
-                    postStatus("Waiting for Player", "Connect the second phone to this same Wi-Fi/hotspot, then choose Join LAN Game and enter:\n\n"
-                            + address + "\nPort: " + PORT + "\n\nWaiting for a player to join…", "Cancel", new Runnable() {
+                    postStatus("Waiting for Player", "Connect the second phone to this same Wi-Fi/hotspot, then choose Join LAN Game and enter:
+
+"
+                            + address + "
+Port: " + PORT + "
+
+A real dungeon map is ready. Waiting for the other phone…", "Cancel", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
                         }
                     });
 
-                    Socket socket = server.accept();
+                    socket = server.accept();
                     activeSocket = socket;
-                    socket.setSoTimeout(10000);
-                    postStatus("Connection Established", "A player connected. Exchanging test dungeon data…", "Back to Co-op", new Runnable() {
-                        @Override public void run() {
-                            stopNetworking();
-                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                        }
-                    });
-
+                    socket.setSoTimeout(SOCKET_TIMEOUT_MS);
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    out.println(testSnapshot(0));
-                    String request = in.readLine();
-                    if ("UPDATE_REQUEST".equals(request)) {
-                        out.println(testSnapshot(1));
-                        postStatus("Shared Data Confirmed", "Connection established!\n\nBoth phones exchanged the test dungeon snapshot:\nDungeon level: "
-                                + TEST_LEVEL + "\nMap size: " + TEST_MAP_WIDTH + " × " + TEST_MAP_HEIGHT
-                                + "\nShared test counter: 1\n\nThis is sample data, not the actual playable dungeon yet.", "Back to Co-op", new Runnable() {
+                    out.println(snapshot);
+                    String reply = in.readLine();
+                    String expected = "MAP_RECEIVED|" + parsed.width + "|" + parsed.height + "|"
+                            + parsed.map.length + "|" + checksum(parsed.map);
+                    if (expected.equals(reply)) {
+                        postStatus("Real Map Shared", "Success! The joining phone received and validated the host's REAL generated dungeon terrain.
+
+"
+                                + "Dungeon floor: " + parsed.level + "
+Map dimensions: " + parsed.width + " × " + parsed.height
+                                + "
+Terrain cells: " + parsed.map.length + "
+Map checksum: " + checksum(parsed.map)
+                                + "
+
+This confirms map transfer only; playable shared movement comes next.", "Back to Co-op", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
                                 ShatteredPixelDungeon.switchScene(CoOpScene.class);
                             }
                         });
                     } else {
-                        postStatus("Data Test Failed", "The phone connected, but the test-data reply was not received correctly.", "Back to Co-op", new Runnable() {
+                        postStatus("Map Validation Failed", "The joining phone connected, but its confirmation did not match the sent map.
+Received: "
+                                + (reply == null ? "no reply" : reply), "Back to Co-op", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
                                 ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -126,19 +143,20 @@ public class CoOpScene extends PixelScene {
                         });
                     }
                 } catch (final Exception e) {
-                    if (!cancelled) {
-                        postStatus("Host Connection Failed", readableError(e) + "\n\nCheck that both phones are on the same Wi-Fi/hotspot and try again.", "Back to Co-op", new Runnable() {
-                            @Override public void run() {
-                                stopNetworking();
-                                ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                            }
-                        });
-                    }
+                    if (!cancelled) postStatus("Host Connection Failed", readableError(e)
+                            + "
+
+Check that both phones are on the same Wi-Fi/hotspot and try again.", "Back to Co-op", new Runnable() {
+                        @Override public void run() {
+                            stopNetworking();
+                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
+                        }
+                    });
                 } finally {
-                    closeSocket(activeSocket);
-                    activeSocket = null;
-                    closeServer(hostServer);
-                    hostServer = null;
+                    closeSocket(socket);
+                    if (activeSocket == socket) activeSocket = null;
+                    closeServer(server);
+                    if (hostServer == server) hostServer = null;
                 }
             }
         }, "CoOp-LAN-Host");
@@ -148,20 +166,15 @@ public class CoOpScene extends PixelScene {
 
     private void askForHostAddress() {
         addToFront(new WndTextInput("Join LAN Game", "Enter the host phone's local IP address. Both phones must be on the same Wi-Fi/hotspot.", "192.168.43.1", 64, false, "Connect", "Cancel") {
-            @Override
-            public void onSelect(boolean positive, String text) {
+            @Override public void onSelect(boolean positive, String text) {
                 if (positive) {
                     final String host = text == null ? "" : text.trim();
                     if (host.length() == 0) {
                         showMessage("Host Address Needed", "Enter the IP address shown on the host phone.", "OK", new Runnable() {
                             @Override public void run() { ShatteredPixelDungeon.switchScene(CoOpScene.class); }
                         });
-                    } else {
-                        startJoin(host);
-                    }
-                } else {
-                    ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                }
+                    } else startJoin(host);
+                } else ShatteredPixelDungeon.switchScene(CoOpScene.class);
             }
         });
     }
@@ -169,7 +182,7 @@ public class CoOpScene extends PixelScene {
     private void startJoin(final String host) {
         stopNetworking();
         cancelled = false;
-        showMessage("Connecting", "Connecting to " + host + ":" + PORT + "…", "Cancel", new Runnable() {
+        showMessage("Connecting", "Connecting to " + host + ":" + PORT + " and waiting for the real dungeon map…", "Cancel", new Runnable() {
             @Override public void run() {
                 cancelled = true;
                 closeSocket(activeSocket);
@@ -184,42 +197,40 @@ public class CoOpScene extends PixelScene {
                     socket = new Socket();
                     activeSocket = socket;
                     socket.connect(new java.net.InetSocketAddress(host, PORT), CONNECT_TIMEOUT_MS);
-                    socket.setSoTimeout(10000);
-                    final BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-                    final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    String first = in.readLine();
-                    if (!isSnapshot(first)) {
-                        throw new IllegalStateException("The host did not send the expected test dungeon data.");
-                    }
-                    postStatus("Connection Established", "Connected to the host. Initial test dungeon data received. Checking an update…", "Cancel", new Runnable() {
-                        @Override public void run() {
-                            cancelled = true;
-                            closeSocket(activeSocket);
-                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                        }
-                    });
-                    out.println("UPDATE_REQUEST");
-                    final String updated = in.readLine();
-                    if (!isSnapshot(updated) || !updated.endsWith("|1")) {
-                        throw new IllegalStateException("The host did not return the updated test data.");
-                    }
-                    postStatus("Shared Data Confirmed", "Connection established!\n\nReceived matching test dungeon data from the host:\nDungeon level: "
-                            + TEST_LEVEL + "\nMap size: " + TEST_MAP_WIDTH + " × " + TEST_MAP_HEIGHT
-                            + "\nShared test counter: 1\n\nThis is sample data, not the actual playable dungeon yet.", "Back to Co-op", new Runnable() {
+                    socket.setSoTimeout(SOCKET_TIMEOUT_MS);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                    String line = in.readLine();
+                    final CoOpProtocol.LevelSnapshot map = CoOpProtocol.parseLevelSnapshot(line);
+                    if (map == null) throw new IllegalStateException("The host sent invalid or incomplete terrain-map data.");
+                    final long sum = checksum(map.map);
+                    out.println("MAP_RECEIVED|" + map.width + "|" + map.height + "|" + map.map.length + "|" + sum);
+                    postStatus("Real Map Received", "The host's generated dungeon terrain was received and validated.
+
+"
+                            + "Dungeon floor: " + map.level + "
+Map dimensions: " + map.width + " × " + map.height
+                            + "
+Terrain cells: " + map.map.length + "
+Map checksum: " + sum
+                            + "
+
+This test validates map transfer; it does not yet display a playable dungeon.", "Back to Co-op", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
                         }
                     });
                 } catch (final Exception e) {
-                    if (!cancelled) {
-                        postStatus("Join Failed", readableError(e) + "\n\nCheck the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", new Runnable() {
-                            @Override public void run() {
-                                stopNetworking();
-                                ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                            }
-                        });
-                    }
+                    if (!cancelled) postStatus("Join Failed", readableError(e)
+                            + "
+
+Check the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", new Runnable() {
+                        @Override public void run() {
+                            stopNetworking();
+                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
+                        }
+                    });
                 } finally {
                     closeSocket(socket);
                     if (activeSocket == socket) activeSocket = null;
@@ -230,32 +241,21 @@ public class CoOpScene extends PixelScene {
         thread.start();
     }
 
-    private static String testSnapshot(int counter) {
-        return "DUNGEON_TEST|" + TEST_LEVEL + "|" + TEST_MAP_WIDTH + "|" + TEST_MAP_HEIGHT + "|" + counter;
-    }
-
-    private static boolean isSnapshot(String line) {
-        if (line == null) return false;
-        String[] parts = line.split("\\|");
-        return parts.length == 5 && "DUNGEON_TEST".equals(parts[0])
-                && String.valueOf(TEST_LEVEL).equals(parts[1])
-                && String.valueOf(TEST_MAP_WIDTH).equals(parts[2])
-                && String.valueOf(TEST_MAP_HEIGHT).equals(parts[3]);
+    private static long checksum(int[] map) {
+        long value = 1;
+        for (int cell : map) value = (value * 31 + cell) & 0x7fffffffL;
+        return value;
     }
 
     private void showOptions(WndOptions options) {
-        if (activeOptions != null) {
-            activeOptions.hide();
-        }
+        if (activeOptions != null) activeOptions.hide();
         activeOptions = options;
         addToFront(options);
     }
 
     private void showMessage(String title, String message, String button, final Runnable action) {
         showOptions(new WndOptions(title, message, button) {
-            @Override protected void onSelect(int index) {
-                if (action != null) action.run();
-            }
+            @Override protected void onSelect(int index) { if (action != null) action.run(); }
         });
     }
 
@@ -285,9 +285,7 @@ public class CoOpScene extends PixelScene {
                     }
                 }
             }
-        } catch (SocketException ignored) {
-            // Fall back to the common Android hotspot address below.
-        }
+        } catch (SocketException ignored) { }
         return "192.168.43.1";
     }
 
@@ -296,7 +294,7 @@ public class CoOpScene extends PixelScene {
         if (e instanceof java.net.SocketTimeoutException) return "Connection timed out. Check the host IP and that the host is waiting for a player.";
         if (e instanceof java.net.BindException) return "Could not start the host port. Close any previous co-op session and try again.";
         String message = e.getMessage();
-        return message == null || message.length() == 0 ? "A network error occurred." : "Network error: " + message;
+        return message == null || message.length() == 0 ? "An error occurred." : message;
     }
 
     private static void closeSocket(Socket socket) {
@@ -315,10 +313,9 @@ public class CoOpScene extends PixelScene {
         hostServer = null;
     }
 
-    @Override
-    protected void onBackPressed() {
+    @Override protected void onBackPressed() {
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
                         }
-                        
+                    
