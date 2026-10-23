@@ -246,16 +246,25 @@ public class TitleScene extends PixelScene {
 			btnChanges.setRect(btnSettings.right()+2, btnSettings.top(), menuColumnWidth, BTN_HEIGHT);
 			btnAbout.setRect(btnChanges.right()+2, btnSettings.top(), menuColumnWidth, BTN_HEIGHT);
 		} else {
-			btnPlay.setRect(btnAreaLeft, insets.top + topRegion+GAP, (buttonAreaWidth/2)-1, BTN_HEIGHT);
+			// Portrait layout: give the two primary actions a full row each.
+			// This prevents long translated labels from colliding on narrow phones.
+			// The secondary buttons use two equal columns across the usable width.
+			float fullLeft = insets.left;
+			float fullWidth = Math.max(1, w);
+			float halfWidth = (fullWidth - 2) / 2f;
+			float rowTop = insets.top + topRegion + GAP;
+
+			btnPlay.setRect(fullLeft, rowTop, fullWidth, BTN_HEIGHT);
 			align(btnPlay);
-			btnCoop.setRect(btnPlay.right()+2, btnPlay.top(), btnPlay.width(), BTN_HEIGHT);
-			btnSupport.setRect(btnPlay.left(), btnPlay.bottom()+ GAP, buttonAreaWidth, BTN_HEIGHT);
-			btnRankings.setRect(btnPlay.left(), btnSupport.bottom()+ GAP, (btnPlay.width()/2)-1, BTN_HEIGHT);
-			btnJournal.setRect(btnRankings.right()+2, btnRankings.top(), btnRankings.width(), BTN_HEIGHT);
-			btnNews.setRect(btnRankings.left(), btnRankings.bottom()+ GAP, btnRankings.width(), BTN_HEIGHT);
-			btnChanges.setRect(btnNews.right()+2, btnNews.top(), btnNews.width(), BTN_HEIGHT);
-			btnSettings.setRect(btnNews.left(), btnNews.bottom()+GAP, btnRankings.width(), BTN_HEIGHT);
-			btnAbout.setRect(btnSettings.right()+2, btnSettings.top(), btnSettings.width(), BTN_HEIGHT);
+			btnCoop.setRect(fullLeft, btnPlay.bottom() + GAP, fullWidth, BTN_HEIGHT);
+			btnSupport.setRect(fullLeft, btnCoop.bottom() + GAP, fullWidth, BTN_HEIGHT);
+
+			btnRankings.setRect(fullLeft, btnSupport.bottom() + GAP, halfWidth, BTN_HEIGHT);
+			btnJournal.setRect(btnRankings.right() + 2, btnRankings.top(), halfWidth, BTN_HEIGHT);
+			btnNews.setRect(fullLeft, btnRankings.bottom() + GAP, halfWidth, BTN_HEIGHT);
+			btnChanges.setRect(btnNews.right() + 2, btnNews.top(), halfWidth, BTN_HEIGHT);
+			btnSettings.setRect(fullLeft, btnNews.bottom() + GAP, halfWidth, BTN_HEIGHT);
+			btnAbout.setRect(btnSettings.right() + 2, btnSettings.top(), halfWidth, BTN_HEIGHT);
 		}
 
 		version = new BitmapText( "v" + Game.version, pixelFont);
@@ -507,4 +516,5 @@ public class TitleScene extends PixelScene {
 		}
 	}
 			}
+
 				
