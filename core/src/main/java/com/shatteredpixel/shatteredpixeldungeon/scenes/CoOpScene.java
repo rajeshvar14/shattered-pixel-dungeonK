@@ -67,9 +67,7 @@ public class CoOpScene extends PixelScene {
             if (parsed == null) throw new IllegalStateException("The generated map could not be encoded correctly.");
         } catch (final Exception e) {
             showMessage("Dungeon Generation Failed", readableError(e)
-                    + "
-
-No co-op session was started. Your normal single-player mode has not been changed.",
+                    + "\n\nNo co-op session was started. Your normal single-player mode has not been changed.",
                     "Back to Co-op", new Runnable() {
                         @Override public void run() { ShatteredPixelDungeon.switchScene(CoOpScene.class); }
                     });
@@ -93,13 +91,8 @@ No co-op session was started. Your normal single-player mode has not been change
                     hostServer = server;
                     if (cancelled) return;
                     final String address = findLocalIPv4();
-                    postStatus("Waiting for Player", "Connect the second phone to this same Wi-Fi/hotspot, then choose Join LAN Game and enter:
-
-"
-                            + address + "
-Port: " + PORT + "
-
-A real dungeon map is ready. Waiting for the other phone…", "Cancel", new Runnable() {
+                    postStatus("Waiting for Player", "Connect the second phone to this same Wi-Fi/hotspot, then choose Join LAN Game and enter:\n\n"
+                            + address + "\nPort: " + PORT + "\n\nA real dungeon map is ready. Waiting for the other phone…", "Cancel", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -116,25 +109,17 @@ A real dungeon map is ready. Waiting for the other phone…", "Cancel", new Runn
                     String expected = "MAP_RECEIVED|" + parsed.width + "|" + parsed.height + "|"
                             + parsed.map.length + "|" + checksum(parsed.map);
                     if (expected.equals(reply)) {
-                        postStatus("Real Map Shared", "Success! The joining phone received and validated the host's REAL generated dungeon terrain.
-
-"
-                                + "Dungeon floor: " + parsed.level + "
-Map dimensions: " + parsed.width + " × " + parsed.height
-                                + "
-Terrain cells: " + parsed.map.length + "
-Map checksum: " + checksum(parsed.map)
-                                + "
-
-This confirms map transfer only; playable shared movement comes next.", "Back to Co-op", new Runnable() {
+                        postStatus("Real Map Shared", "Success! The joining phone received and validated the host's REAL generated dungeon terrain.\n\n"
+                                + "Dungeon floor: " + parsed.level + "\nMap dimensions: " + parsed.width + " × " + parsed.height
+                                + "\nTerrain cells: " + parsed.map.length + "\nMap checksum: " + checksum(parsed.map)
+                                + "\n\nThis confirms map transfer only; playable shared movement comes next.", "Back to Co-op", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
                                 ShatteredPixelDungeon.switchScene(CoOpScene.class);
                             }
                         });
                     } else {
-                        postStatus("Map Validation Failed", "The joining phone connected, but its confirmation did not match the sent map.
-Received: "
+                        postStatus("Map Validation Failed", "The joining phone connected, but its confirmation did not match the sent map.\nReceived: "
                                 + (reply == null ? "no reply" : reply), "Back to Co-op", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
@@ -144,9 +129,7 @@ Received: "
                     }
                 } catch (final Exception e) {
                     if (!cancelled) postStatus("Host Connection Failed", readableError(e)
-                            + "
-
-Check that both phones are on the same Wi-Fi/hotspot and try again.", "Back to Co-op", new Runnable() {
+                            + "\n\nCheck that both phones are on the same Wi-Fi/hotspot and try again.", "Back to Co-op", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -205,17 +188,10 @@ Check that both phones are on the same Wi-Fi/hotspot and try again.", "Back to C
                     if (map == null) throw new IllegalStateException("The host sent invalid or incomplete terrain-map data.");
                     final long sum = checksum(map.map);
                     out.println("MAP_RECEIVED|" + map.width + "|" + map.height + "|" + map.map.length + "|" + sum);
-                    postStatus("Real Map Received", "The host's generated dungeon terrain was received and validated.
-
-"
-                            + "Dungeon floor: " + map.level + "
-Map dimensions: " + map.width + " × " + map.height
-                            + "
-Terrain cells: " + map.map.length + "
-Map checksum: " + sum
-                            + "
-
-This test validates map transfer; it does not yet display a playable dungeon.", "Back to Co-op", new Runnable() {
+                    postStatus("Real Map Received", "The host's generated dungeon terrain was received and validated.\n\n"
+                            + "Dungeon floor: " + map.level + "\nMap dimensions: " + map.width + " × " + map.height
+                            + "\nTerrain cells: " + map.map.length + "\nMap checksum: " + sum
+                            + "\n\nThis test validates map transfer; it does not yet display a playable dungeon.", "Back to Co-op", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -223,9 +199,7 @@ This test validates map transfer; it does not yet display a playable dungeon.", 
                     });
                 } catch (final Exception e) {
                     if (!cancelled) postStatus("Join Failed", readableError(e)
-                            + "
-
-Check the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", new Runnable() {
+                            + "\n\nCheck the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -317,5 +291,5 @@ Check the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", n
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
-                        }
-                    
+        }
+                                                                  
