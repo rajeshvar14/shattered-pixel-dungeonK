@@ -68,4 +68,5 @@ public final class CoOpLevelSnapshot {
         return cell >= 0 && cell < level.length()
                 && level.passable != null && level.passable[cell];
     }
-                }
+                                    }
+    
