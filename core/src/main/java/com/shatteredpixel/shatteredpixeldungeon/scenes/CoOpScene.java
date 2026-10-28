@@ -1,8 +1,6 @@
 /*
- * Step 2: real dungeon terrain transfer over local Wi-Fi.
- * The host shares the current real floor when one is loaded, or generates a test floor when no run is active, and sends its terrain map; the joining
- * phone validates the received dimensions, cells, and checksum. This does not
- * yet display a playable dungeon or synchronize movement/turns.
+ * Step 3C: transfer and display the same serialized dungeon level on both phones.
+ * The host remains authoritative; turn/movement synchronization is a later step.
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
@@ -10,10 +8,11 @@ import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
+import com.watabou.utils.Bundle;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -42,7 +41,7 @@ public class CoOpScene extends PixelScene {
     private void showMenu() {
         showOptions(new WndOptions(
                 "Co-op Multiplayer",
-                "Co-op development test: the host shares terrain from its currently loaded floor, or generates a test floor if no game is active. Both phones must use the same Wi-Fi network or hotspot.",
+                "Co-op level-display test: host sends the complete dungeon floor. Both phones restore and display that same floor, with the host and joining player placed at separate starting cells. Movement and actions are not synchronized in this build. Both phones must use the same Wi-Fi network or hotspot.",
                 "Host LAN Game", "Join LAN Game", "Back to Title") {
             @Override protected void onSelect(int index) {
                 if (index == 0) startHost();
@@ -58,15 +57,13 @@ public class CoOpScene extends PixelScene {
     private void startHost() {
         stopNetworking();
         cancelled = false;
-        final String snapshot;
-        final CoOpProtocol.LevelSnapshot parsed;
+        final CoOpLevelSnapshot.SerializedLevel snapshot;
         try {
-            showMessage("Preparing Dungeon", "Preparing a real dungeon floor for the map-sharing test…", "Please wait", null);
-            snapshot = CoOpLevelSnapshot.createHostLevelSnapshot();
-            parsed = CoOpProtocol.parseLevelSnapshot(snapshot);
-            if (parsed == null) throw new IllegalStateException("The generated map could not be encoded correctly.");
+            showMessage("Preparing Dungeon", "Serializing the complete dungeon floor with the game's Bundle system…", "Please wait", null);
+            snapshot = CoOpLevelSnapshot.createSerializedLevel();
+            if (snapshot.data == null || snapshot.data.length == 0) throw new IllegalStateException("The serialized dungeon bundle is empty.");
         } catch (final Exception e) {
-            showMessage("Dungeon Generation Failed", readableError(e)
+            showMessage("Dungeon Serialization Failed", readableError(e)
                     + "\n\nNo co-op session was started. Your normal single-player mode has not been changed.",
                     "Back to Co-op", new Runnable() {
                         @Override public void run() { ShatteredPixelDungeon.switchScene(CoOpScene.class); }
@@ -74,8 +71,8 @@ public class CoOpScene extends PixelScene {
             return;
         }
 
-        showMessage("Starting Host", "Dungeon terrain prepared (" + parsed.width + " × " + parsed.height
-                + "). Starting the local Wi-Fi host…", "Cancel", new Runnable() {
+        showMessage("Starting Host", "Complete dungeon bundle prepared (" + snapshot.data.length
+                + " bytes compressed). Starting the local Wi-Fi host…", "Cancel", new Runnable() {
             @Override public void run() {
                 stopNetworking();
                 ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -92,7 +89,7 @@ public class CoOpScene extends PixelScene {
                     if (cancelled) return;
                     final String address = findLocalIPv4();
                     postStatus("Waiting for Player", "Connect the second phone to this same Wi-Fi/hotspot, then choose Join LAN Game and enter:\n\n"
-                            + address + "\nPort: " + PORT + "\n\nA real dungeon map is ready. Waiting for the other phone…", "Cancel", new Runnable() {
+                            + address + "\nPort: " + PORT + "\n\nA complete compressed dungeon bundle is ready (" + snapshot.data.length + " bytes).", "Cancel", new Runnable() {
                         @Override public void run() {
                             stopNetworking();
                             ShatteredPixelDungeon.switchScene(CoOpScene.class);
@@ -102,38 +99,35 @@ public class CoOpScene extends PixelScene {
                     socket = server.accept();
                     activeSocket = socket;
                     socket.setSoTimeout(SOCKET_TIMEOUT_MS);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    out.println(snapshot);
-                    String reply = in.readLine();
-                    String expected = "MAP_RECEIVED|" + parsed.width + "|" + parsed.height + "|"
-                            + parsed.map.length + "|" + checksum(parsed.map);
+                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                    DataInputStream in = new DataInputStream(socket.getInputStream());
+                    out.writeInt(snapshot.data.length);
+                    out.write(snapshot.data);
+                    out.flush();
+                    String reply = in.readUTF();
+                    String expected = "BUNDLE_RECEIVED|" + snapshot.floor + "|" + snapshot.width + "|" + snapshot.height
+                            + "|" + snapshot.terrainCells + "|" + snapshot.data.length;
                     if (expected.equals(reply)) {
-                        postStatus("Real Map Shared", "Success! The joining phone received and validated the host's REAL generated dungeon terrain.\n\n"
-                                + "Dungeon floor: " + parsed.level + "\nMap dimensions: " + parsed.width + " × " + parsed.height
-                                + "\nTerrain cells: " + parsed.map.length + "\nMap checksum: " + checksum(parsed.map)
-                                + "\n\nThis confirms map transfer only; playable shared movement comes next.", "Back to Co-op", new Runnable() {
+                        postStatus("Shared Dungeon Ready", "Success! Both phones exchanged the complete dungeon data.\n\n"
+                                + "Floor: " + snapshot.floor + "\nDimensions: " + snapshot.width + " × " + snapshot.height
+                                + "\nTerrain cells: " + snapshot.terrainCells + "\nCompressed bundle: " + snapshot.data.length
+                                + " bytes\nHost start cell: " + snapshot.hostPosition + "\nJoining start cell: " + snapshot.guestPosition
+                                + "\n\nTap Enter Shared Dungeon to display the floor on the host phone. Movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
-                                ShatteredPixelDungeon.switchScene(CoOpScene.class);
+                                ShatteredPixelDungeon.switchScene(GameScene.class);
                             }
                         });
                     } else {
-                        postStatus("Map Validation Failed", "The joining phone connected, but its confirmation did not match the sent map.\nReceived: "
+                        postStatus("Bundle Validation Failed", "The joining phone connected, but its confirmation did not match the sent bundle.\nReceived: "
                                 + (reply == null ? "no reply" : reply), "Back to Co-op", new Runnable() {
-                            @Override public void run() {
-                                stopNetworking();
-                                ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                            }
+                            @Override public void run() { stopNetworking(); ShatteredPixelDungeon.switchScene(CoOpScene.class); }
                         });
                     }
                 } catch (final Exception e) {
                     if (!cancelled) postStatus("Host Connection Failed", readableError(e)
                             + "\n\nCheck that both phones are on the same Wi-Fi/hotspot and try again.", "Back to Co-op", new Runnable() {
-                        @Override public void run() {
-                            stopNetworking();
-                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                        }
+                        @Override public void run() { stopNetworking(); ShatteredPixelDungeon.switchScene(CoOpScene.class); }
                     });
                 } finally {
                     closeSocket(socket);
@@ -165,7 +159,7 @@ public class CoOpScene extends PixelScene {
     private void startJoin(final String host) {
         stopNetworking();
         cancelled = false;
-        showMessage("Connecting", "Connecting to " + host + ":" + PORT + " and waiting for the real dungeon map…", "Cancel", new Runnable() {
+        showMessage("Connecting", "Connecting to " + host + ":" + PORT + " and waiting for the complete dungeon bundle…", "Cancel", new Runnable() {
             @Override public void run() {
                 cancelled = true;
                 closeSocket(activeSocket);
@@ -181,29 +175,71 @@ public class CoOpScene extends PixelScene {
                     activeSocket = socket;
                     socket.connect(new java.net.InetSocketAddress(host, PORT), CONNECT_TIMEOUT_MS);
                     socket.setSoTimeout(SOCKET_TIMEOUT_MS);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    String line = in.readLine();
-                    final CoOpProtocol.LevelSnapshot map = CoOpProtocol.parseLevelSnapshot(line);
-                    if (map == null) throw new IllegalStateException("The host sent invalid or incomplete terrain-map data.");
-                    final long sum = checksum(map.map);
-                    out.println("MAP_RECEIVED|" + map.width + "|" + map.height + "|" + map.map.length + "|" + sum);
-                    postStatus("Real Map Received", "The host's generated dungeon terrain was received and validated.\n\n"
-                            + "Dungeon floor: " + map.level + "\nMap dimensions: " + map.width + " × " + map.height
-                            + "\nTerrain cells: " + map.map.length + "\nMap checksum: " + sum
-                            + "\n\nThis test validates map transfer; it does not yet display a playable dungeon.", "Back to Co-op", new Runnable() {
+                    DataInputStream in = new DataInputStream(socket.getInputStream());
+                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                    int length = in.readInt();
+                    if (length <= 0 || length > 16 * 1024 * 1024) {
+                        throw new IllegalStateException("The host sent an invalid bundle size (" + length + " bytes). Maximum allowed is 16 MB.");
+                    }
+                    byte[] payload = new byte[length];
+                    in.readFully(payload);
+                    Bundle received = Bundle.read(new ByteArrayInputStream(payload));
+                    Bundle levelBundle = received.getBundle("coop_level");
+                    int width = levelBundle.getInt("width");
+                    int height = levelBundle.getInt("height");
+                    int[] map = levelBundle.getIntArray("map");
+                    final int floor = received.getInt("coop_floor");
+                    final int hostPosition = received.getInt("coop_host_position");
+                    final int guestPosition = received.getInt("coop_guest_position");
+                    if (width < 1 || height < 1 || map == null || map.length != width * height
+                            || hostPosition < 0 || guestPosition < 0 || hostPosition >= map.length || guestPosition >= map.length) {
+                        throw new IllegalStateException("The serialized Level Bundle has invalid dimensions, terrain, or starting positions.");
+                    }
+                    String[] required = new String[] {"heaps", "mobs", "plants", "traps", "blobs", "transitions", "customTiles", "customTerrain", "customWalls"};
+                    StringBuilder missing = new StringBuilder();
+                    for (String key : required) {
+                        if (!levelBundle.contains(key)) {
+                            if (missing.length() > 0) missing.append(", ");
+                            missing.append(key);
+                        }
+                    }
+                    if (missing.length() > 0) throw new IllegalStateException("The full Level Bundle is missing fields: " + missing);
+                    final int finalWidth = width;
+                    final int finalHeight = height;
+                    final int finalCells = map.length;
+                    final int finalBytes = payload.length;
+                    out.writeUTF("BUNDLE_RECEIVED|" + floor + "|" + width + "|" + height + "|" + map.length + "|" + payload.length);
+                    out.flush();
+                    // Level restoration and Dungeon global-state changes must occur on
+                    // the libGDX application thread, not on the socket worker thread.
+                    if (Gdx.app == null) throw new IllegalStateException("The game application is not ready to restore the shared level.");
+                    Gdx.app.postRunnable(new Runnable() {
                         @Override public void run() {
-                            stopNetworking();
-                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
+                            if (cancelled || !(ShatteredPixelDungeon.scene() instanceof CoOpScene)) return;
+                            try {
+                                CoOpLevelSnapshot.installReceivedLevel(payload);
+                                showMessage("Shared Dungeon Ready", "Success! The joining phone restored the host's complete dungeon level.\n\n"
+                                        + "Floor: " + floor + "\nDimensions: " + finalWidth + " × " + finalHeight
+                                        + "\nTerrain cells: " + finalCells + "\nCompressed bundle: " + finalBytes
+                                        + " bytes\nHost start cell: " + hostPosition + "\nYour start cell: " + guestPosition
+                                        + "\n\nTap Enter Shared Dungeon to display the same floor. Movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
+                                    @Override public void run() {
+                                        stopNetworking();
+                                        ShatteredPixelDungeon.switchScene(GameScene.class);
+                                    }
+                                });
+                            } catch (final Exception restoreError) {
+                                showMessage("Level Restore Failed", readableError(restoreError)
+                                        + "\n\nThe bundle arrived, but the game could not restore it. Send the build log or screenshot so we can fix the restore stage.", "Back to Co-op", new Runnable() {
+                                    @Override public void run() { stopNetworking(); ShatteredPixelDungeon.switchScene(CoOpScene.class); }
+                                });
+                            }
                         }
                     });
                 } catch (final Exception e) {
                     if (!cancelled) postStatus("Join Failed", readableError(e)
                             + "\n\nCheck the host IP, Wi-Fi/hotspot connection, and try again.", "Back to Co-op", new Runnable() {
-                        @Override public void run() {
-                            stopNetworking();
-                            ShatteredPixelDungeon.switchScene(CoOpScene.class);
-                        }
+                        @Override public void run() { stopNetworking(); ShatteredPixelDungeon.switchScene(CoOpScene.class); }
                     });
                 } finally {
                     closeSocket(socket);
@@ -213,12 +249,6 @@ public class CoOpScene extends PixelScene {
         }, "CoOp-LAN-Join");
         thread.setDaemon(true);
         thread.start();
-    }
-
-    private static long checksum(int[] map) {
-        long value = 1;
-        for (int cell : map) value = (value * 31 + cell) & 0x7fffffffL;
-        return value;
     }
 
     private void showOptions(WndOptions options) {
@@ -291,5 +321,5 @@ public class CoOpScene extends PixelScene {
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
-                        }
-                        
+    }
+                    
