@@ -1,6 +1,6 @@
 /*
  * Step 2: real dungeon terrain transfer over local Wi-Fi.
- * The host generates one real floor and sends its terrain map; the joining
+ * The host shares the current real floor when one is loaded, or generates a test floor when no run is active, and sends its terrain map; the joining
  * phone validates the received dimensions, cells, and checksum. This does not
  * yet display a playable dungeon or synchronize movement/turns.
  */
@@ -42,7 +42,7 @@ public class CoOpScene extends PixelScene {
     private void showMenu() {
         showOptions(new WndOptions(
                 "Co-op Multiplayer",
-                "Step 2 test: the host generates a real dungeon floor and sends its terrain map to the joining phone. Both phones must use the same Wi-Fi network or hotspot.",
+                "Co-op development test: the host shares terrain from its currently loaded floor, or generates a test floor if no game is active. Both phones must use the same Wi-Fi network or hotspot.",
                 "Host LAN Game", "Join LAN Game", "Back to Title") {
             @Override protected void onSelect(int index) {
                 if (index == 0) startHost();
@@ -61,8 +61,8 @@ public class CoOpScene extends PixelScene {
         final String snapshot;
         final CoOpProtocol.LevelSnapshot parsed;
         try {
-            showMessage("Preparing Dungeon", "Generating a real dungeon floor for the map-sharing test…", "Please wait", null);
-            snapshot = CoOpLevelSnapshot.generateFreshLevelSnapshot();
+            showMessage("Preparing Dungeon", "Preparing a real dungeon floor for the map-sharing test…", "Please wait", null);
+            snapshot = CoOpLevelSnapshot.createHostLevelSnapshot();
             parsed = CoOpProtocol.parseLevelSnapshot(snapshot);
             if (parsed == null) throw new IllegalStateException("The generated map could not be encoded correctly.");
         } catch (final Exception e) {
@@ -74,7 +74,7 @@ public class CoOpScene extends PixelScene {
             return;
         }
 
-        showMessage("Starting Host", "Real dungeon generated (" + parsed.width + " × " + parsed.height
+        showMessage("Starting Host", "Dungeon terrain prepared (" + parsed.width + " × " + parsed.height
                 + "). Starting the local Wi-Fi host…", "Cancel", new Runnable() {
             @Override public void run() {
                 stopNetworking();
@@ -291,5 +291,5 @@ public class CoOpScene extends PixelScene {
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
-        }
-                                                                  
+                        }
+                        
