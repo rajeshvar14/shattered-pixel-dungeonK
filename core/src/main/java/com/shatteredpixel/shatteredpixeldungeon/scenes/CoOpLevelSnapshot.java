@@ -1,6 +1,11 @@
 /*
- * Step 2 co-op test helper: generate a fresh real level and encode its terrain.
- * This is a transfer test only; it does not switch the game into GameScene.
+ * Co-op development helper.
+ * Shares terrain from the active dungeon if one is already loaded, without
+ * resetting or clearing that active game. If no game is active, it generates
+ * a temporary test floor using the game's normal generator.
+ *
+ * This transfers terrain only; complete level-state serialization is a later
+ * step. Do not use this as the final multiplayer save/load implementation.
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
@@ -14,18 +19,37 @@ public final class CoOpLevelSnapshot {
     private CoOpLevelSnapshot() {}
 
     /**
-     * Generates a real floor using the game's normal level generator and returns
-     * its actual terrain array as a CoOpProtocol LEVEL line. The temporary run
-     * is not saved and no gameplay scene is opened.
+     * Creates a terrain snapshot without overwriting an already-loaded level.
+     * If a real level is active, that level is shared. If not, a temporary
+     * test level is generated. Existing active hero/level references are never
+     * cleared by this method.
      */
-    public static String generateFreshLevelSnapshot() {
-        // This test is launched from the title/co-op menu, before a run is active.
-        // Refuse to overwrite a live in-memory game, preserving single-player state.
-        if (Dungeon.hero != null || Dungeon.level != null) {
-            throw new IllegalStateException(
-                    "A game is already active in memory. Return to the title screen and try co-op again.");
+    public static String createHostLevelSnapshot() {
+        // IMPORTANT: scene changes do not necessarily clear Dungeon static state.
+        // If a floor is already loaded, snapshot it directly and do not call
+        // Dungeon.init(), Dungeon.newLevel(), or clear any game references.
+        if (Dungeon.level != null && Dungeon.level.map != null) {
+            Level current = Dungeon.level;
+            int hostPosition = Dungeon.hero != null ? Dungeon.hero.pos : current.entrance();
+            if (!isPassable(current, hostPosition)) {
+                hostPosition = findPassable(current, -1);
+            }
+            int guestPosition = findPassable(current, hostPosition);
+            if (hostPosition < 0 || guestPosition < 0) {
+                throw new IllegalStateException("Could not find two valid starting cells on the current dungeon floor.");
+            }
+            return CoOpProtocol.levelSnapshot(Dungeon.depth, current.width(), current.height(),
+                    hostPosition, guestPosition, current.map.clone());
         }
 
+        // A hero without a loaded level is an inconsistent/transitioning game
+        // state. Refuse to initialize over it, rather than damaging the run.
+        if (Dungeon.hero != null) {
+            throw new IllegalStateException(
+                    "A hero is active but no dungeon floor is loaded. Finish loading the floor or return to the title screen before starting the co-op test.");
+        }
+
+        // No active game is loaded, so a temporary test floor can be generated.
         try {
             if (GamesInProgress.selectedClass == null) {
                 GamesInProgress.selectedClass = HeroClass.WARRIOR;
@@ -38,20 +62,17 @@ public final class CoOpLevelSnapshot {
             }
 
             int hostPosition = level.entrance();
-            if (!isPassable(level, hostPosition)) {
-                hostPosition = findPassable(level, -1);
-            }
+            if (!isPassable(level, hostPosition)) hostPosition = findPassable(level, -1);
             int guestPosition = findPassable(level, hostPosition);
             if (hostPosition < 0 || guestPosition < 0) {
                 throw new IllegalStateException("Could not find two valid starting cells on the generated map.");
             }
 
-            return CoOpProtocol.levelSnapshot(
-                    Dungeon.depth, level.width(), level.height(),
+            return CoOpProtocol.levelSnapshot(Dungeon.depth, level.width(), level.height(),
                     hostPosition, guestPosition, level.map.clone());
         } finally {
-            // Do not leave the temporary test hero/level in memory. A later
-            // normal single-player start will initialize its own run as usual.
+            // This cleanup is only reached on the no-active-game path above.
+            // It must never run when an existing game was detected.
             Dungeon.hero = null;
             Dungeon.level = null;
         }
@@ -68,5 +89,4 @@ public final class CoOpLevelSnapshot {
         return cell >= 0 && cell < level.length()
                 && level.passable != null && level.passable[cell];
     }
-                                    }
-    
+}
