@@ -112,9 +112,10 @@ public class CoOpScene extends PixelScene {
                                 + "Floor: " + snapshot.floor + "\nDimensions: " + snapshot.width + " × " + snapshot.height
                                 + "\nTerrain cells: " + snapshot.terrainCells + "\nCompressed bundle: " + snapshot.data.length
                                 + " bytes\nHost start cell: " + snapshot.hostPosition + "\nJoining start cell: " + snapshot.guestPosition
-                                + "\n\nTap Enter Shared Dungeon to display the floor on the host phone. Movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
+                                + "\n\nTap Enter Shared Dungeon to display the floor on the host phone. Both character objects are now registered, but movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
                             @Override public void run() {
                                 stopNetworking();
+                                com.shatteredpixel.shatteredpixeldungeon.Dungeon.createCoOpComrade(snapshot.guestPosition);
                                 ShatteredPixelDungeon.switchScene(GameScene.class);
                             }
                         });
@@ -222,9 +223,10 @@ public class CoOpScene extends PixelScene {
                                         + "Floor: " + floor + "\nDimensions: " + finalWidth + " × " + finalHeight
                                         + "\nTerrain cells: " + finalCells + "\nCompressed bundle: " + finalBytes
                                         + " bytes\nHost start cell: " + hostPosition + "\nYour start cell: " + guestPosition
-                                        + "\n\nTap Enter Shared Dungeon to display the same floor. Movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
+                                        + "\n\nTap Enter Shared Dungeon to display the same floor. Both character objects are now registered, but movement/actions are not synchronized yet.", "Enter Shared Dungeon", new Runnable() {
                                     @Override public void run() {
                                         stopNetworking();
+                                        com.shatteredpixel.shatteredpixeldungeon.Dungeon.createCoOpComrade(hostPosition);
                                         ShatteredPixelDungeon.switchScene(GameScene.class);
                                     }
                                 });
@@ -321,5 +323,5 @@ public class CoOpScene extends PixelScene {
         stopNetworking();
         ShatteredPixelDungeon.switchScene(TitleScene.class);
     }
-    }
-                    
+            }
+                                   
