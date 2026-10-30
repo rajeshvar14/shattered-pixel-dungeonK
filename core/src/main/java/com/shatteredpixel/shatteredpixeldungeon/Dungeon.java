@@ -1,4 +1,4 @@
-/*
+*
  * Pixel Dungeon
  * Copyright (C) 2012-2015 Oleg Dolya
  *
@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Comrade;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
@@ -183,6 +184,8 @@ public class Dungeon {
 	public static float mobsToChampion;
 
 	public static Hero hero;
+	/** Second player character used only during a co-op session. */
+	public static Comrade comrade;
 	public static Level level;
 
 	public static QuickSlot quickslot = new QuickSlot();
@@ -279,11 +282,26 @@ public class Dungeon {
 		Imp.Quest.reset();
 
 		hero = new Hero();
+		comrade = null;
 		hero.live();
 		
 		Badges.reset();
 		
 		GamesInProgress.selectedClass.initHero( hero );
+	}
+
+	/** Creates the second player actor for the current co-op floor.
+	 * This does not replace or modify the normal Dungeon.hero reference.
+	 */
+	public static void createCoOpComrade( int position ) {
+		if (level == null || position < 0 || position >= level.length()) {
+			throw new IllegalArgumentException("Invalid co-op comrade position.");
+		}
+		if (comrade != null) Actor.remove(comrade);
+		comrade = new Comrade();
+		comrade.pos = position;
+		comrade.live();
+		Actor.add(comrade);
 	}
 
 	public static boolean isChallenged( int mask ) {
@@ -391,7 +409,8 @@ public class Dungeon {
 					Statistics.completedWithNoKilling = false;
 				}
 			}
-		}
+}
+
 
 		Statistics.qualifiedForBossRemainsBadge = false;
 		
@@ -798,8 +817,8 @@ public class Dungeon {
 				}
 
 			}
-		}
-		
+					}
+	
 		Bundle badges = bundle.getBundle(BADGES);
 		if (!badges.isNull()) {
 			Badges.loadLocal( badges );
@@ -1093,4 +1112,4 @@ public class Dungeon {
 
 	}
 
-}
+		}
