@@ -200,6 +200,7 @@ public abstract class Actor implements Bundlable {
 	public static void init() {
 		
 		add( Dungeon.hero );
+		if (Dungeon.comrade != null) add( Dungeon.comrade );
 		
 		for (Mob mob : Dungeon.level.mobs) {
 			add( mob );
@@ -399,4 +400,5 @@ public abstract class Actor implements Bundlable {
 	}
 
 	public static synchronized HashSet<Char> chars() { return new HashSet<>(chars); }
-}
+	}
+	
