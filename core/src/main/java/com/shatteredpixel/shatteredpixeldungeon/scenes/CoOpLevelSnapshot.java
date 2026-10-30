@@ -204,17 +204,7 @@ public final class CoOpLevelSnapshot {
 
     private static int findPassable(Level level, int except) {
         for (int i = 0; i < level.length(); i++) {
-            if (i == except || !isPassable(level, i)) continue;
-            boolean occupiedByMob = false;
-            if (level.mobs != null) {
-                for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob : level.mobs) {
-                    if (mob != null && mob.pos == i && mob.isAlive()) {
-                        occupiedByMob = true;
-                        break;
-                    }
-                }
-            }
-            if (!occupiedByMob) return i;
+            if (i != except && isPassable(level, i)) return i;
         }
         return -1;
     }
@@ -223,5 +213,5 @@ public final class CoOpLevelSnapshot {
         return cell >= 0 && cell < level.length()
                 && level.passable != null && level.passable[cell];
     }
-            }
+    }
             
