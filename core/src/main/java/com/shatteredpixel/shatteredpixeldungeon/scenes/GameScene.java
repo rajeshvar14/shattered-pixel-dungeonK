@@ -1634,7 +1634,7 @@ public class GameScene extends PixelScene {
 	}
 	
 	public static void handleCell( int cell ) {
-		cellSelector.select( cell, PointerEvent.LEFT );
+		//cellSelector.select( cell, PointerEvent.LEFT );
 	}
 	
 	public static void selectCell( CellSelector.Listener listener ) {
