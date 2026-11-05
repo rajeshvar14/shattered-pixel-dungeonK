@@ -1634,7 +1634,7 @@ public class GameScene extends PixelScene {
 	}
 	
 	public static void handleCell( int cell ) {
-		//cellSelector.select( cell, PointerEvent.LEFT );
+		cellSelector.select( cell, PointerEvent.LEFT );
 	}
 	
 	public static void selectCell( CellSelector.Listener listener ) {
@@ -1839,14 +1839,14 @@ public class GameScene extends PixelScene {
 	}
 
 	
-	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
+/*	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
 			if (Dungeon.hero.handle( cell )) {
 				Dungeon.hero.next();
 			}
 		}
-
+*/
 		@Override
 		public void onRightClick(Integer cell) {
 			if (cell == null
