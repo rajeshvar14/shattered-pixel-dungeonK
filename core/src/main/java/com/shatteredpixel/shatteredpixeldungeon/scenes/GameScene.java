@@ -1840,13 +1840,13 @@ public class GameScene extends PixelScene {
 
 	
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
-	/*	@Override
+	@Override
 		public void onSelect( Integer cell ) {
-			if (Dungeon.hero.handle( cell )) {
+		/*	if (Dungeon.hero.handle( cell )) {
 				Dungeon.hero.next();
-			}
+			}*/
 		}
-*/
+
 		@Override
 		public void onRightClick(Integer cell) {
 			if (cell == null
