@@ -1842,6 +1842,7 @@ public class GameScene extends PixelScene {
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 	@Override
 		public void onSelect( Integer cell ) {
+			Dungeon.hero.pos = Dungeon.kr14;
 		if (Dungeon.hero.handle( cell )) {
 				Dungeon.hero.next();
 			}
