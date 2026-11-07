@@ -99,7 +99,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class Dungeon {
-
+    public static int kr14 = 0;
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
 	public static enum LimitedDrops {
@@ -146,7 +146,6 @@ public class Dungeon {
 		LORE_HALLS;
 
 		public int count = 0;
-        public static int kr14 = 0;
 		//for items which can only be dropped once, should directly access count otherwise.
 		public boolean dropped(){
 			return count != 0;
@@ -498,7 +497,7 @@ public class Dungeon {
 		
 		Dungeon.level = level;
 		hero.pos = pos;
-        Dungeon.kr14 = pos;
+        kr14 = pos;
 		if (hero.buff(AscensionChallenge.class) != null){
 			hero.buff(AscensionChallenge.class).onLevelSwitch();
 		}
