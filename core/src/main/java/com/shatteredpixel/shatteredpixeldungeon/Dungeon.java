@@ -146,7 +146,7 @@ public class Dungeon {
 		LORE_HALLS;
 
 		public int count = 0;
-        public int kr14 = 0;
+        public static int kr14 = 0;
 		//for items which can only be dropped once, should directly access count otherwise.
 		public boolean dropped(){
 			return count != 0;
@@ -498,7 +498,7 @@ public class Dungeon {
 		
 		Dungeon.level = level;
 		hero.pos = pos;
-        kr14 = pos;
+        Dungeon.kr14 = pos;
 		if (hero.buff(AscensionChallenge.class) != null){
 			hero.buff(AscensionChallenge.class).onLevelSwitch();
 		}
