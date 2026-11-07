@@ -7,6 +7,9 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 public class Comrade extends Hero {
 
+    /** Most recently selected target cell reported by the remote player. */
+    public volatile int targetCell = -1;
+
     public Comrade() {
         super();
     }
