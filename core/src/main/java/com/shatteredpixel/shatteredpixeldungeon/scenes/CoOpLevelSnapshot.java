@@ -12,7 +12,10 @@ import com.watabou.utils.Bundle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public static final class SerializedMetadata {
+
+public final class CoOpLevelSnapshot {
+
+    public static final class SerializedMetadata {
     public final int floor;
     public final int branch;
     public final int width;
@@ -63,8 +66,6 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
             guestPosition,
             level.map.length);
 }
-public final class CoOpLevelSnapshot {
-
     private CoOpLevelSnapshot() {
     }
 
