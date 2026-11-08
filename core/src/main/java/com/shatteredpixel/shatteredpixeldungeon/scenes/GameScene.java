@@ -213,7 +213,7 @@ private float coopUpdateTimer;
 
 	private Toolbar toolbar;
 	private Toast prompt;
-
+private int displayedComradePos = -1;
 	private AttackIndicator attack;
 	private LootIndicator loot;
 	private ActionIndicator action;
@@ -223,14 +223,22 @@ private float coopUpdateTimer;
 		inGameScene = true;
 	}
 /** Refreshes the remote character's sprite after a network state update. */
-public static void syncComradeSprite() {
+/*public static void syncComradeSprite() {
     if (scene == null || scene.comradeSprite == null
             || Dungeon.comrade == null) {
         return;
     }
     scene.comradeSprite.place(Dungeon.comrade.pos);
-}
 	
+}*/
+	public static void syncComradeSprite() {
+    if (scene == null || scene.comradeSprite == null
+            || Dungeon.comrade == null) {
+        return;
+    }
+    scene.comradeSprite.place(Dungeon.comrade.pos);
+    scene.displayedComradePos = Dungeon.comrade.pos;
+	}
 	@Override
 	public void create() {
 		
@@ -914,10 +922,15 @@ if (coopUpdateTimer <= 0f) {
                 CoOpScene.localTargetCell());
     }
 
-    if (Dungeon.comrade != null && comradeSprite != null
+ /*   if (Dungeon.comrade != null && comradeSprite != null
             && comradeSprite.pos != Dungeon.comrade.pos) {
         comradeSprite.place(Dungeon.comrade.pos);
-    }
+    }*/
+	if (Dungeon.comrade != null && comradeSprite != null
+        && displayedComradePos != Dungeon.comrade.pos) {
+    comradeSprite.place(Dungeon.comrade.pos);
+    displayedComradePos = Dungeon.comrade.pos;
+	}
 }
 		if (notifyDelay > 0) notifyDelay -= Game.elapsed;
 
