@@ -347,9 +347,14 @@ hero.place(Dungeon.hero.pos);
 mobs.add(hero);
 
 if (Dungeon.comrade != null) {
-    comradeSprite = new HeroSprite(Dungeon.comrade);
+   /* comradeSprite = new HeroSprite(Dungeon.comrade);
     comradeSprite.place(Dungeon.comrade.pos);
     mobs.add(comradeSprite);
+}*/
+comradeSprite = new HeroSprite(Dungeon.comrade);
+comradeSprite.place(Dungeon.comrade.pos);
+displayedComradePos = Dungeon.comrade.pos;
+mobs.add(comradeSprite);
 }
 		for (Mob mob : Dungeon.level.mobs) {
 			addMobSprite( mob );
