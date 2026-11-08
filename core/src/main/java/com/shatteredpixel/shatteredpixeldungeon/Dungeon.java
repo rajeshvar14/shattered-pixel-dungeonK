@@ -98,6 +98,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CoOpScene;
 public class Dungeon {
     public static int kr14 = 0;
 	//enum of items which have limited spawns, records how many have spawned
@@ -292,7 +293,7 @@ public class Dungeon {
 	/** Creates the second player actor for the current co-op floor.
 	 * This does not replace or modify the normal Dungeon.hero reference.
 	 */
-	public static void createCoOpComrade( int position ) {
+	/*public static void createCoOpComrade( int position ) {
 		if (level == null || position < 0 || position >= level.length()) {
 			throw new IllegalArgumentException("Invalid co-op comrade position.");
 		}
@@ -301,8 +302,39 @@ public class Dungeon {
 		comrade.pos = position;
 		comrade.live();
 		Actor.add(comrade);
-	}
+	}*/
+public static void createCoOpComrade(int position) {
+    if (level == null || position < 0 || position >= level.length()) {
+        throw new IllegalArgumentException("Invalid co-op comrade position.");
+    }
 
+    if (comrade == null) {
+        comrade = new Comrade();
+        comrade.live();
+    }
+
+    setCoOpComradePosition(position);
+    if (!Actor.chars().contains(comrade)) {
+        Actor.add(comrade);
+    }
+}
+
+public static void setCoOpComradePosition(int position) {
+    if (level == null || position < 0 || position >= level.length()) {
+        throw new IllegalArgumentException("Invalid co-op comrade position.");
+    }
+
+    if (comrade == null) {
+        comrade = new Comrade();
+        comrade.live();
+    }
+
+    comrade.pos = position;
+    if (!Actor.chars().contains(comrade)) {
+        Actor.add(comrade);
+    }
+    GameScene.syncComradeSprite();
+}
 	public static boolean isChallenged( int mask ) {
 		return (challenges & mask) != 0;
 	}
@@ -533,6 +565,7 @@ public class Dungeon {
 			/*This only catches IO errors. Yes, this means things can go wrong, and they can go wrong catastrophically.
 			But when they do the user will get a nice 'report this issue' dialogue, and I can fix the bug.*/
 		}
+		CoOpScene.onHostLevelChanged();
 	}
 
 	public static void dropToChasm( Item item ) {
