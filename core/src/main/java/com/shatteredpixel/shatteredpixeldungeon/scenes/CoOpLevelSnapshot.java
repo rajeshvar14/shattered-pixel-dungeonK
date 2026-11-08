@@ -12,6 +12,57 @@ import com.watabou.utils.Bundle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+public static final class SerializedMetadata {
+    public final int floor;
+    public final int branch;
+    public final int width;
+    public final int height;
+    public final int hostPosition;
+    public final int guestPosition;
+    public final int terrainCells;
+
+    private SerializedMetadata(int floor, int branch, int width, int height,
+                               int hostPosition, int guestPosition,
+                               int terrainCells) {
+        this.floor = floor;
+        this.branch = branch;
+        this.width = width;
+        this.height = height;
+        this.hostPosition = hostPosition;
+        this.guestPosition = guestPosition;
+        this.terrainCells = terrainCells;
+    }
+}
+
+public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
+    if (payload == null || payload.length == 0) {
+        throw new IllegalArgumentException("Empty level bundle.");
+    }
+
+    Bundle bundle = Bundle.read(new ByteArrayInputStream(payload));
+    Level level = (Level) bundle.get("coop_level");
+    if (level == null || level.map == null) {
+        throw new IllegalStateException("Snapshot has no valid level.");
+    }
+
+    int hostPosition = bundle.getInt("coop_host_position");
+    int guestPosition = bundle.getInt("coop_guest_position");
+
+    if (hostPosition < 0 || guestPosition < 0
+            || hostPosition >= level.length()
+            || guestPosition >= level.length()) {
+        throw new IllegalStateException("Snapshot positions are out of range.");
+    }
+
+    return new SerializedMetadata(
+            bundle.getInt("coop_floor"),
+            bundle.getInt("coop_branch"),
+            level.width(),
+            level.height(),
+            hostPosition,
+            guestPosition,
+            level.map.length);
+}
 public final class CoOpLevelSnapshot {
 
     private CoOpLevelSnapshot() {
