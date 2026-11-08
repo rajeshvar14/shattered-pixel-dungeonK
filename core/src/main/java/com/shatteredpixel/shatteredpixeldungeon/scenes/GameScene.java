@@ -157,7 +157,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
-
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CoOpScene;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Comrade;
 public class GameScene extends PixelScene {
 
 	static GameScene scene;
@@ -173,7 +174,8 @@ public class GameScene extends PixelScene {
 	private ArrayList<Tilemap> customTilemaps = new ArrayList<>();
 	private FogOfWar fog;
 	private HeroSprite hero;
-
+private HeroSprite comradeSprite;
+private float coopUpdateTimer;
 	private MenuPane menu;
 	private StatusPane status;
 
@@ -220,7 +222,15 @@ public class GameScene extends PixelScene {
 	{
 		inGameScene = true;
 	}
-
+/** Refreshes the remote character's sprite after a network state update. */
+public static void syncComradeSprite() {
+    if (scene == null || scene.comradeSprite == null
+            || Dungeon.comrade == null) {
+        return;
+    }
+    scene.comradeSprite.place(Dungeon.comrade.pos);
+}
+	
 	@Override
 	public void create() {
 		
@@ -319,11 +329,20 @@ public class GameScene extends PixelScene {
 		mobs = new Group();
 		add( mobs );
 
-		hero = new HeroSprite();
+	/*	hero = new HeroSprite();
 		hero.place( Dungeon.hero.pos );
 		hero.updateArmor();
 		mobs.add( hero );
-		
+		*/
+		hero = new HeroSprite(Dungeon.hero);
+hero.place(Dungeon.hero.pos);
+mobs.add(hero);
+
+if (Dungeon.comrade != null) {
+    comradeSprite = new HeroSprite(Dungeon.comrade);
+    comradeSprite.place(Dungeon.comrade.pos);
+    mobs.add(comradeSprite);
+}
 		for (Mob mob : Dungeon.level.mobs) {
 			addMobSprite( mob );
 		}
@@ -885,6 +904,21 @@ public class GameScene extends PixelScene {
 
 		super.update();
 
+		coopUpdateTimer -= Game.elapsed;
+if (coopUpdateTimer <= 0f) {
+    coopUpdateTimer = 0.05f;
+
+    if (Dungeon.hero != null) {
+        CoOpScene.publishLocalState(
+                Dungeon.hero.pos,
+                CoOpScene.localTargetCell());
+    }
+
+    if (Dungeon.comrade != null && comradeSprite != null
+            && comradeSprite.pos != Dungeon.comrade.pos) {
+        comradeSprite.place(Dungeon.comrade.pos);
+    }
+}
 		if (notifyDelay > 0) notifyDelay -= Game.elapsed;
 
 		if (!Emitter.freezeEmitters) {
@@ -1633,8 +1667,12 @@ public class GameScene extends PixelScene {
 		}
 	}
 	
-	public static void handleCell( int cell ) {
+	/*public static void handleCell( int cell ) {
 		cellSelector.select( cell, PointerEvent.LEFT );
+	}*/
+	public static void handleCell(int cell) {
+    CoOpScene.noteLocalTargetCell(cell);
+    cellSelector.select(cell, PointerEvent.LEFT);
 	}
 	
 	public static void selectCell( CellSelector.Listener listener ) {
