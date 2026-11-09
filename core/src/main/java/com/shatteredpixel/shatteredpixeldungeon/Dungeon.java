@@ -310,13 +310,14 @@ public static void createCoOpComrade(int position) {
 
     if (comrade == null) {
         comrade = new Comrade();
-        comrade.live();
+        //comrade.live();
     }
 
     setCoOpComradePosition(position);
-    if (!Actor.chars().contains(comrade)) {
+   /* if (!Actor.chars().contains(comrade)) {
         Actor.add(comrade);
-    }
+    }*/
+	//Actor.remove(comrade);
 }
 
 public static void setCoOpComradePosition(int position) {
@@ -326,13 +327,13 @@ public static void setCoOpComradePosition(int position) {
 
     if (comrade == null) {
         comrade = new Comrade();
-        comrade.live();
+      //  comrade.live();
     }
-
+   Actor.remove(comrade);
     comrade.pos = position;
-    if (!Actor.chars().contains(comrade)) {
+   /* if (!Actor.chars().contains(comrade)) {
         Actor.add(comrade);
-    }
+    }*/
     GameScene.syncComradeSprite();
 }
 	public static boolean isChallenged( int mask ) {
