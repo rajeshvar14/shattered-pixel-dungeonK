@@ -344,6 +344,7 @@ private int displayedComradePos = -1;
 		*/
 		hero = new HeroSprite(Dungeon.hero);
 hero.place(Dungeon.hero.pos);
+hero.updateArmor();
 mobs.add(hero);
 
 if (Dungeon.comrade != null) {
