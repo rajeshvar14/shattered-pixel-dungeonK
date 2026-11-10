@@ -239,6 +239,12 @@ private int displayedComradePos = -1;
     scene.comradeSprite.place(Dungeon.comrade.pos);
     scene.displayedComradePos = Dungeon.comrade.pos;
 	}
+
++    /** Wait until the current scene's actor processing is idle before replacing its level. */
++    public static boolean waitForActorsBeforeLevelInstall() {
++        return scene == null || scene.waitForActorThread(4500, true);
++    }
+	
 	@Override
 	public void create() {
 		
