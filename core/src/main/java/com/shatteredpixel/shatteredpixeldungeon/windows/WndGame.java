@@ -37,7 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Game;
 
 import java.io.IOException;
-
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CoOpScene;
 public class WndGame extends Window {
 
 	private static final int WIDTH		= 120;
@@ -101,11 +101,14 @@ public class WndGame extends Window {
 		addButton(curBtn = new RedButton(Messages.get(this, "menu")) {
 			@Override
 			protected void onClick() {
-				try {
-					Dungeon.saveAll();
-				} catch (IOException e) {
-					ShatteredPixelDungeon.reportException(e);
-				}
+                 try {
+                     Dungeon.saveAll();
+                 } catch (IOException e) {
+                     ShatteredPixelDungeon.reportException(e);
+                 }
+                if (CoOpScene.isSessionActive()) {
+                    CoOpScene.pauseForResume();
+                }
 				Game.switchScene(TitleScene.class);
 			}
 		});
