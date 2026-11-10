@@ -38,7 +38,7 @@ public class CoOpScene extends PixelScene {
 
     private volatile boolean cancelled;
     private WndOptions activeOptions;
-
+private static volatile boolean pausedForResume;
     @Override
     public void create() {
         super.create();
@@ -560,6 +560,16 @@ public class CoOpScene extends PixelScene {
                 ? "A network or level-transfer error occurred." : message;
     }
 
+    public static boolean isSessionActive() {
+    return sessionActive;
+}
+
+public static void pauseForResume() {
+    pausedForResume = true;
+    closeServer(hostServer);
+    hostServer = null;
+    endSession();
+}
     private static void endSession() {
         sessionActive = false;
         closeSocket(activeSocket);
