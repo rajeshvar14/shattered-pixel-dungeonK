@@ -11,7 +11,7 @@ import com.watabou.utils.Bundle;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 
 public final class CoOpLevelSnapshot {
 
@@ -235,6 +235,12 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
         Dungeon.seed = seed;
         Dungeon.depth = floor;
         Dungeon.branch = branch;
+       if (!GameScene.waitForActorsBeforeLevelInstall()) {
+          throw new IllegalStateException(
+                 "Could not stop actor processing before installing the co-op floor.");
+        }
+       Actor.clear();
+         Dungeon.switchLevel(level, guestPosition);
         Dungeon.switchLevel(level, guestPosition);
         Dungeon.setCoOpComradePosition(hostPosition);
     }
