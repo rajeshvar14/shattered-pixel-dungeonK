@@ -155,7 +155,7 @@ private static volatile boolean pausedForResume;
 
                     readHostFrames(in);
                 } catch (final Exception e) {
-                    if (!cancelled) {
+                    if (!cancelled && !pausedForResume) {
                         postStatus("Host Connection Failed", readableError(e),
                                 "Back", new Runnable() {
                                     @Override
@@ -294,7 +294,7 @@ private static volatile boolean pausedForResume;
 
                     readJoinFrames(in);
                 } catch (final Exception e) {
-                    if (!cancelled) {
+                    if (!cancelled && !pausedForResume) {
                         postStatus("Join Failed", readableError(e), "Back",
                                 new Runnable() {
                                     @Override
@@ -320,6 +320,7 @@ private static volatile boolean pausedForResume;
                                                   DataOutputStream out,
                                                   boolean isHost) {
         activeSocket = socket;
+        pausedForResume = false;
         sessionIn = in;
         sessionOut = out;
         hostRole = isHost;
