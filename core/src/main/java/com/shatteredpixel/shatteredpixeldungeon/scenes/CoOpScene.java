@@ -49,11 +49,12 @@ public class CoOpScene extends PixelScene {
         showOptions(new WndOptions(
                 "Co-op Multiplayer",
                 "Shares the host's dungeon floor and continuously exchanges both players' positions and selected target cells. Target cells are stored only; they are not executed. Both phones must use the same Wi-Fi network or hotspot.",
-                "Host LAN Game", "Join LAN Game", "Back to Title") {
+                "New Host Game","Resume Host Game" "Join LAN Game", "Back to Title") {
             @Override
             protected void onSelect(int index) {
-                if (index == 0) startHost();
-                else if (index == 1) askForHostAddress();
+                if (index == 0) startHost(false);
+                else if (index == 1) starthost(true);
+                else if (index == 2) askForHostAddress();
                 else {
                     stopNetworking();
                     ShatteredPixelDungeon.switchScene(TitleScene.class);
@@ -62,13 +63,22 @@ public class CoOpScene extends PixelScene {
         });
     }
 
-    private void startHost() {
+    private void startHost(boolean resumeSavedRun) {
         stopNetworking();
         cancelled = false;
 
         final CoOpLevelSnapshot.SerializedLevel snapshot;
         try {
-            snapshot = CoOpLevelSnapshot.createSerializedLevel();
+        
+               if (resumeSavedRun) {
+               if (!CoOpRunState.hasSavedRun()) {
+                   throw new IllegalStateException("No saved co-op run was found.");
+               }
+               CoOpRunState.restore();
+               } else {
+                CoOpRunState.startFresh();
+            }
+            snapshot = CoOpLevelSnapshot.serialize(Dungeon.level);
         } catch (Exception e) {
             showMessage("Dungeon Setup Failed", readableError(e), "Back", null);
             return;
@@ -245,9 +255,17 @@ public class CoOpScene extends PixelScene {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            if (!sessionActive) return;
-                            try {
-                                CoOpLevelSnapshot.installReceivedLevel(payload, true);
+
+                             if (!sessionActive) return;
+                             try {
+                                if (CoOpRunState.hasSavedRun()) {
+                                     CoOpRunState.restore();
+                                     CoOpLevelSnapshot.installReceivedLevel(payload, false);
+                                 } else {
+                                    CoOpRunState.selectCoOpSlotPreservingCurrentRun();
+                                    CoOpLevelSnapshot.installReceivedLevel(payload, true);
+                                }
+                                
                                 showMessage("Shared Dungeon Ready",
                                         "Floor " + metadata.floor + " received. "
                                                 + "Tap Enter Shared Dungeon.",
