@@ -49,18 +49,18 @@ private static volatile boolean pausedForResume;
         showOptions(new WndOptions(
                 "Co-op Multiplayer",
                 "Shares the host's dungeon floor and continuously exchanges both players' positions and selected target cells. Target cells are stored only; they are not executed. Both phones must use the same Wi-Fi network or hotspot.",
-                "New Host Game","Resume Host Game","Join LAN Game", "Back to Title") );
+                "New Host Game","Resume Host Game","Join LAN Game", "Back to Title"){
             @Override
             protected void onSelect(int index) {
                 if (index == 0) startHost(false);
-                else if (index == 1) starthost(true);
+                else if (index == 1) startHost(true);
                 else if (index == 2) askForHostAddress();
                 else {
                     stopNetworking();
                     ShatteredPixelDungeon.switchScene(TitleScene.class);
                 }
             }
-        
+        });
     }
 
     private void startHost(boolean resumeSavedRun) {
