@@ -37,6 +37,20 @@ public final class CoOpLevelSnapshot {
     }
 }
 
+private static int findGuestStart(Level level, int hostPosition) {
+    for (int offset : com.watabou.utils.PathFinder.NEIGHBOURS8) {
+        int cell = hostPosition + offset;
+        if (cell >= 0 && cell < level.length()
+                && level.passable[cell]
+                && !level.solid[cell]
+                && !level.invalidHeroPos(cell)
+                && cell != level.exit()) {
+            return cell;
+        }
+    }
+    return -1;
+}
+    
 public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
     if (payload == null || payload.length == 0) {
         throw new IllegalArgumentException("Empty level bundle.");
@@ -148,7 +162,8 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
             guestPosition = Dungeon.comrade.pos;
         }
         if (guestPosition < 0) {
-            guestPosition = findPassable(level, hostPosition);
+         //   guestPosition = findPassable(level, hostPosition);
+              guestPosition = findGuestStart(level, hostPosition);
         }
         if (hostPosition < 0 || guestPosition < 0) {
             throw new IllegalStateException("Could not find two valid starting cells.");
@@ -216,7 +231,8 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
         }
         if (!isPassable(level, guestPosition)
                 || guestPosition == hostPosition) {
-            guestPosition = findPassable(level, hostPosition);
+          //  guestPosition = findPassable(level, hostPosition);
+            guestPosition = findGuestStart(level, hostPosition);
         }
         if (hostPosition < 0 || guestPosition < 0) {
             throw new IllegalStateException("No valid player starting cells were found.");
