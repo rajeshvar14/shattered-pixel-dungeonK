@@ -18,7 +18,10 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Comrade;
+import com.watabou.utils.Bundle;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 public class CoOpScene extends PixelScene {
 
@@ -365,7 +368,52 @@ private static volatile boolean pausedForResume;
      * Called periodically by GameScene with the local player's latest state.
      * The remote side stores this state on its Comrade; it does not execute it.
      */
-    public static void publishLocalState(int position, int targetCell) {
+    /**
+ * Sends the local hero snapshot and current selected-cell input.
+ * The remote side validates and stores the snapshot; this does not execute
+ * the requested action on that device.
+ */
+public static void publishLocalState(int position, int targetCell) {
+    if (!sessionActive || Dungeon.level == null || Dungeon.hero == null
+            || position < 0 || position >= Dungeon.level.length()) {
+        return;
+    }
+
+    DataOutputStream out = sessionOut;
+    if (out == null) return;
+
+    try {
+        Bundle state = new Bundle();
+        state.put("coop_sequence", ++sendSequence);
+        state.put("coop_floor", Dungeon.depth);
+        state.put("coop_branch", Dungeon.branch);
+        state.put("coop_position", position);
+        state.put("coop_input_cell", targetCell);
+
+        // Hero implements Bundlable; this includes its serialized hero state.
+        state.put("coop_player", Dungeon.hero);
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        if (!Bundle.write(state, bytes, true)) {
+            throw new IllegalStateException("Could not serialize co-op player state.");
+        }
+
+        byte[] payload = bytes.toByteArray();
+        if (payload.length <= 0 || payload.length > MAX_BUNDLE_BYTES) {
+            throw new IllegalStateException("Invalid co-op player state size.");
+        }
+
+        synchronized (out) {
+            out.writeByte(FRAME_STATE);
+            out.writeInt(payload.length);
+            out.write(payload);
+            out.flush();
+        }
+    } catch (Exception e) {
+        endSession();
+    }
+}
+   /* public static void publishLocalState(int position, int targetCell) {
         if (!sessionActive || Dungeon.level == null
                 || position < 0 || position >= Dungeon.level.length()) {
             return;
@@ -387,7 +435,7 @@ private static volatile boolean pausedForResume;
         } catch (Exception e) {
             endSession();
         }
-    }
+    }*/
 
     /** Records the most recently selected cell for periodic transmission. */
     public static void noteLocalTargetCell(int cell) {
@@ -460,6 +508,52 @@ private static volatile boolean pausedForResume;
     }
 
     private void receiveState(DataInputStream in) throws Exception {
+    int length = in.readInt();
+    if (length <= 0 || length > MAX_BUNDLE_BYTES) {
+        throw new IllegalStateException("Invalid co-op player state size: " + length);
+    }
+
+    byte[] payload = new byte[length];
+    in.readFully(payload);
+
+    final Bundle state = Bundle.read(new ByteArrayInputStream(payload));
+    final int sequence = state.getInt("coop_sequence");
+    final int floor = state.getInt("coop_floor");
+    final int branch = state.getInt("coop_branch");
+    final int position = state.getInt("coop_position");
+    final int inputCell = state.getInt("coop_input_cell");
+    final Bundle player = state.getBundle("coop_player");
+
+    if (sequence <= receiveSequence) return;
+    receiveSequence = sequence;
+
+    if (Gdx.app == null) return;
+
+    Gdx.app.postRunnable(new Runnable() {
+        @Override
+        public void run() {
+            if (!sessionActive || Dungeon.level == null
+                    || floor != Dungeon.depth || branch != Dungeon.branch
+                    || position < 0 || position >= Dungeon.level.length()
+                    || inputCell < -1 || inputCell >= Dungeon.level.length()
+                    || player == null || player.isNull()) {
+                return;
+            }
+
+            if (Dungeon.comrade == null) {
+                Dungeon.createCoOpComrade(position);
+            }
+
+            // Comrade is a Hero, so it can restore the bundled Hero fields.
+            Dungeon.comrade.restoreFromBundle(player);
+            Dungeon.comrade.pos = position;
+            Dungeon.comrade.targetCell = inputCell;
+
+            GameScene.syncComradeSprite();
+        }
+    });
+    }
+/*    private void receiveState(DataInputStream in) throws Exception {
         final int sequence = in.readInt();
         final int floor = in.readInt();
         final int branch = in.readInt();
@@ -491,7 +585,7 @@ private static volatile boolean pausedForResume;
             }
         });
     }
-
+*/
     private void receiveLevel(DataInputStream in) throws Exception {
         int length = in.readInt();
         if (length <= 0 || length > MAX_BUNDLE_BYTES) {
