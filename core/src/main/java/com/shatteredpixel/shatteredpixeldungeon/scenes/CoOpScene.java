@@ -321,7 +321,7 @@ private void chooseJoiningClass() {
                                      CoOpLevelSnapshot.installReceivedLevel(payload, false);
                                  } else {
                                     CoOpRunState.selectCoOpSlotPreservingCurrentRun();
-                                    CoOpLevelSnapshot.installReceivedLevel(payload, true);
+                                    CoOpLevelSnapshot.installReceivedLevel(payload, true , joiningClass);
                                 }
                                 
                                 showMessage("Shared Dungeon Ready",
