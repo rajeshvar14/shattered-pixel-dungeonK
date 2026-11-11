@@ -200,6 +200,11 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
      */
     public static void installReceivedLevel(byte[] payload, boolean initializeRun)
             throws Exception {
+installReceivedLevel(payload, initializeRun, null);
+            }
+public static void installReceivedLevel(byte[] payload, boolean initializeRun,
+                                           HeroClass localHeroClass)
+           throws Exception {                
         if (payload == null || payload.length == 0) {
             throw new IllegalArgumentException("The received dungeon bundle is empty.");
         }
@@ -239,7 +244,7 @@ public static SerializedMetadata readMetadata(byte[] payload) throws Exception {
         }
 
         if (initializeRun) {
-            GamesInProgress.selectedClass = heroClass;
+            GamesInProgress.selectedClass = localHeroClass == null ? heroClass : localHeroClass;
             Dungeon.daily = false;
             Dungeon.seed = seed;
             Dungeon.init();
