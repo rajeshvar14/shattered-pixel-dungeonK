@@ -61,7 +61,8 @@ private static volatile boolean pausedForResume;
             
                 if (index == 0) chooseHostClass();
                 else if (index == 1) startHost(true);
-                else if (index == 2) askForHostAddress();
+              //  else if (index == 2) askForHostAddress();
+                else if (index == 2) chooseJoiningClass();
                 else {
                     stopNetworking();
                     ShatteredPixelDungeon.switchScene(TitleScene.class);
@@ -96,6 +97,29 @@ private static volatile boolean pausedForResume;
         }
     });
     }
+
+private void chooseJoiningClass() {
+    final ArrayList<HeroClass> unlockedClasses = new ArrayList<>();
+    final ArrayList<String> classNames = new ArrayList<>();
+
+    for (HeroClass heroClass : HeroClass.values()) {
+        if (heroClass.isUnlocked()) {
+            unlockedClasses.add(heroClass);
+            classNames.add(heroClass.title());
+        }
+    }
+
+    showOptions(new WndOptions(
+            "Choose Your Hero",
+            "Choose the hero class for your character in the shared run.",
+            classNames.toArray(new String[0])) {
+        @Override
+        protected void onSelect(int index) {
+            if (index < 0 || index >= unlockedClasses.size()) return;
+            askForHostAddress(unlockedClasses.get(index));
+        }
+    });
+}
     
     private void startHost(boolean resumeSavedRun) {
         stopNetworking();
@@ -211,7 +235,7 @@ private static volatile boolean pausedForResume;
         thread.start();
     }
 
-    private void askForHostAddress() {
+    private void askForHostAddress(final HeroClass joiningClass) {
         addToFront(new WndTextInput(
                 "Join LAN Game",
                 "Enter the host phone's local IP address. Both phones must be on the same Wi-Fi/hotspot.",
@@ -224,14 +248,14 @@ private static volatile boolean pausedForResume;
                         showMessage("Host Address Needed",
                                 "Enter the IP shown on the host phone.", "OK", null);
                     } else {
-                        startJoin(host);
+                        startJoin(host, joiningClass);
                     }
                 }
             }
         });
     }
 
-    private void startJoin(final String host) {
+    private void startJoin(final String host, final HeroClass joiningClass) {
         stopNetworking();
         cancelled = false;
 
