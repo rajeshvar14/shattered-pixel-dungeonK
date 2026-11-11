@@ -16,7 +16,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 
+import java.util.ArrayList;
 public class CoOpScene extends PixelScene {
 
     private static final int PORT = 47832;
@@ -52,7 +55,8 @@ private static volatile boolean pausedForResume;
                 "New Host Game","Resume Host Game","Join LAN Game", "Back to Title"){
             @Override
             protected void onSelect(int index) {
-                if (index == 0) startHost(false);
+            
+                if (index == 0) chooseHostClass();
                 else if (index == 1) startHost(true);
                 else if (index == 2) askForHostAddress();
                 else {
@@ -63,6 +67,33 @@ private static volatile boolean pausedForResume;
         });
     }
 
+    private void chooseHostClass() {
+    final ArrayList<HeroClass> unlockedClasses = new ArrayList<>();
+    final ArrayList<String> classNames = new ArrayList<>();
+
+    for (HeroClass heroClass : HeroClass.values()) {
+        if (heroClass.isUnlocked()) {
+            unlockedClasses.add(heroClass);
+            classNames.add(heroClass.title());
+        }
+    }
+
+    final String[] options = classNames.toArray(new String[0]);
+
+    showOptions(new WndOptions(
+            "Choose Hero Class",
+            "Choose the hero class for the new shared run.",
+            options) {
+        @Override
+        protected void onSelect(int index) {
+            if (index < 0 || index >= unlockedClasses.size()) return;
+
+            GamesInProgress.selectedClass = unlockedClasses.get(index);
+            startHost(false);
+        }
+    });
+    }
+    
     private void startHost(boolean resumeSavedRun) {
         stopNetworking();
         cancelled = false;
