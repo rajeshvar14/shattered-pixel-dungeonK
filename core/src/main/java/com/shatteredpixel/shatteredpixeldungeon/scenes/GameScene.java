@@ -219,7 +219,6 @@ private int displayedComradePos = -1;
 	private ActionIndicator action;
 	private ResumeIndicator resume;
 
-	Bundle snapshotk = new Bundle();
 	{
 		inGameScene = true;
 	}
@@ -1909,16 +1908,18 @@ if (coopUpdateTimer <= 0f) {
 		//	Dungeon.hero.pos = Dungeon.kr14;
 			if(Dungeon.kr14==1)
 			{
-				Dungeon.hero.storeInBundle(snapshotk);
-				Dungeon.thekr.restoreFromBundle(snapshotk);
-				Dungeon.comrade.storeInBundle(snapshotk);
-				Dungeon.hero.restoreFromBundle(snapshotk);
+		     	Bundle snapshotk1 = new Bundle();
+				Bundle snapshotk2 = new Bundle();
+				Dungeon.hero.storeInBundle(snapshotk1);
+				//Dungeon.thekr.restoreFromBundle(snapshotk1);
+				Dungeon.comrade.storeInBundle(snapshotk2);
+				Dungeon.hero.restoreFromBundle(snapshotk2);
 				
-		if (Dungeon.hero.handle( cell )) {
-			Dungeon.hero.storeInBundle(snapshotk);
-			Dungeon.comrade.restoreFromBundle(snapshotk);
-			Dungeon.therk.storeInBundle(snapshotk);
-			Dungeon.hero.restoreFromBundle(snapshotk);
+		if (Dungeon.hero.handle( Dungeon.comrade.targetCell )) {
+			Dungeon.hero.storeInBundle(snapshotk2);
+			Dungeon.comrade.restoreFromBundle(snapshotk2);
+			//Dungeon.therk.storeInBundle(snapshotk);
+			Dungeon.hero.restoreFromBundle(snapshotk1);
 			Dungeon.kr14=0;
 				Dungeon.hero.next();
 			}
