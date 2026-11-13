@@ -1933,7 +1933,6 @@ if (coopUpdateTimer <= 0f) {
 			}
 		}
 			}
-		}
 
 		@Override
 		public void onRightClick(Integer cell) {
