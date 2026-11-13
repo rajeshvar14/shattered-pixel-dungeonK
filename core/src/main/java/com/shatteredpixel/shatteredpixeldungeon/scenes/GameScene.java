@@ -1914,7 +1914,7 @@ if (coopUpdateTimer <= 0f) {
 			Bundle snapshotk1 = new Bundle();
 				Bundle snapshotk2 = new Bundle();
 		//	Dungeon.hero.pos = Dungeon.kr14;
-			if(Dungeon.kr14==1 && Dungeo.comrade!=null)
+			if(Dungeon.kr14==1 && Dungeon.comrade!=null)
 			{
 				Dungeon.kr14=0;
 		     	
