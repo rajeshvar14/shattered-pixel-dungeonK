@@ -530,7 +530,7 @@ public static void setCoOpComradePosition(int position) {
 		
 		Dungeon.level = level;
 		hero.pos = pos;
-        kr14 = pos;
+      //  kr14 = pos;
 		if (hero.buff(AscensionChallenge.class) != null){
 			hero.buff(AscensionChallenge.class).onLevelSwitch();
 		}
