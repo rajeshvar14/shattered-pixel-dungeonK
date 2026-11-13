@@ -1906,8 +1906,29 @@ if (coopUpdateTimer <= 0f) {
 	@Override
 		public void onSelect( Integer cell ) {
 		//	Dungeon.hero.pos = Dungeon.kr14;
+			if(Dungeon.kr14==1)
+			{
+				Bundle snapshotk = new Bundle();
+				Dungeon.hero.storeInBundle(snapshotk);
+				Dungeon.thekr.restoreFromBundle(snapshotk);
+				Dungeon.comrade.storeInBundle(snapshotk);
+				Dungeon.hero.restoreFromBundle(snapshotk);
+				
 		if (Dungeon.hero.handle( cell )) {
+			Dungeon.hero.storeInBundle(snapshotk);
+			Dungeon.comrade.restoreFromBundle(snapshotk);
+			Dungeon.kr14=0;
 				Dungeon.hero.next();
+			}
+			}
+		if (Dungeon.kr14==0)
+		{
+			if (Dungeon.hero.handle( cell ))
+			{
+				Dungeon.kr14=1;
+				Dungeon.hero.next();
+			}
+		}
 			}
 		}
 
