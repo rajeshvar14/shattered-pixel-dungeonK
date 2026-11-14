@@ -1932,7 +1932,7 @@ if (coopUpdateTimer <= 0f) {
 				Dungeon.hero.next();
 			}
 			}
-		if (Dungeon.kr14==0)
+		if (Dungeon.kr14==0 && snapshotk1 == null )
 		{
 			if(Dungeon.comrade!=null)
 			{
