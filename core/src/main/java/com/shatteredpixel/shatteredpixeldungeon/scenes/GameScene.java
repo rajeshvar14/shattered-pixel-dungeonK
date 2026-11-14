@@ -1914,13 +1914,16 @@ if (coopUpdateTimer <= 0f) {
 			Boolean kturn = true;
 			Bundle snapshotk1 = new Bundle();
 				Bundle snapshotk2 = new Bundle();
-		//	Dungeon.thekr=null;
-		//	Dungeon.hero.pos = Dungeon.kr14;
-			if(Dungeon.kr14==1 && Dungeon.comrade!=null)
+			if(Dungeon.kr14==0)
 			{
-				Dungeon.kr14=0;
+			Dungeon.thekr=null;
+			}
+		//	Dungeon.hero.pos = Dungeon.kr14;
+			if(Dungeon.kr14%2==1 && Dungeon.comrade!=null)
+			{
+				Dungeon.kr14++;
 		     	kturn = false;
-				//Dungeon.thekr=new Hero();
+				Dungeon.thekr=new Hero();
 				Dungeon.hero.storeInBundle(snapshotk1);
 				Dungeon.thekr.restoreFromBundle(snapshotk1);
 				Dungeon.comrade.storeInBundle(snapshotk2);
@@ -1935,7 +1938,7 @@ if (coopUpdateTimer <= 0f) {
 				Dungeon.hero.next();
 			}
 			}
-		if (Dungeon.kr14==0 && kturn && cell!= null)
+		if (Dungeon.kr14%2==0 && kturn && cell!= null)
 		{
 			if(Dungeon.comrade!=null)
 			{
@@ -1943,8 +1946,9 @@ if (coopUpdateTimer <= 0f) {
 				{
 					Dungeon.thekr.storeInBundle(snapshotk1);
 					Dungeon.hero.restoreFromBundle(snapshotk1);
-				Dungeon.kr14=1;
 				}
+				Dungeon.kr14++;
+				
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
