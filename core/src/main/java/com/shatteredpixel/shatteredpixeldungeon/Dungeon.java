@@ -187,7 +187,7 @@ public class Dungeon {
 	/** Second player character used only during a co-op session. */
 	public static Comrade comrade;
 	public static Level level;
-    public static Hero thekr; // copy object
+    public static Hero thekr=new Hero(); // copy object
 	public static QuickSlot quickslot = new QuickSlot();
 	
 	public static int depth;
