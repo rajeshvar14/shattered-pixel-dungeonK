@@ -1914,11 +1914,13 @@ if (coopUpdateTimer <= 0f) {
 			Boolean kturn = true;
 			Bundle snapshotk1 = new Bundle();
 				Bundle snapshotk2 = new Bundle();
+			Dungeon.thekr=null;
 		//	Dungeon.hero.pos = Dungeon.kr14;
 			if(Dungeon.kr14==1 && Dungeon.comrade!=null)
 			{
 				Dungeon.kr14=0;
 		     	kturn = false;
+				Dungeon.thekr=new Hero();
 				Dungeon.hero.storeInBundle(snapshotk1);
 				Dungeon.thekr.restoreFromBundle(snapshotk1);
 				Dungeon.comrade.storeInBundle(snapshotk2);
