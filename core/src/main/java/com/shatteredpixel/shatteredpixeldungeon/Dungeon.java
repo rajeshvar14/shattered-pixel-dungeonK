@@ -101,6 +101,7 @@ import java.util.TimeZone;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CoOpScene;
 public class Dungeon {
     public static int kr14 = 0;
+	public static int ktrn = -1;
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
 	public static enum LimitedDrops {
