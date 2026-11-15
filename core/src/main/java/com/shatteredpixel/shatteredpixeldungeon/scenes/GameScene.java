@@ -929,15 +929,21 @@ if (coopUpdateTimer <= 0f) {
     coopUpdateTimer = 0.05f;
 
     if (Dungeon.hero != null) {
-		/*if(Dungeon.thekr!=null && Dungeon.kr14==0)
+		if(Dungeon.thekr!=null && Dungeon.kr14%2==0)
 		{
-		Bundle snapshot3 = new Bundle();
+			CoOpScene.publishLocalState(
+                Dungeon.thekr.pos,
+                CoOpScene.localTargetCell());
+		/*Bundle snapshot3 = new Bundle();
 		Dungeon.thekr.storeInBundle(snapshot3);
-		Dungeon.hero.restoreFromBundle(snapshot3);
-		}*/
+		Dungeon.hero.restoreFromBundle(snapshot3);*/
+		}
+		else
+		{
         CoOpScene.publishLocalState(
                 Dungeon.hero.pos,
                 CoOpScene.localTargetCell());
+		}
     }
 
  /*   if (Dungeon.comrade != null && comradeSprite != null
@@ -1923,10 +1929,14 @@ if (coopUpdateTimer <= 0f) {
 			{
 				if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
 				{
-				Dungeon.kr14++;
+					Dungeon.kr14++;
 				Dungeon.ktrn=Dungeon.comrade.targetCell;
 				
 		     	kturn = false;
+					char kh = Actor.findChar(Dungeon.targetCell);
+					if( kh instanceof Mob)
+					{
+				
 				Dungeon.thekr=new Hero();
 				/*Dungeon.hero.storeInBundle(snapshotk1);
 				Dungeon.thekr.restoreFromBundle(snapshotk1);
@@ -1943,6 +1953,7 @@ if (coopUpdateTimer <= 0f) {
 			
 			
 				Dungeon.hero.next();
+		}
 		}
 			}
 			}
