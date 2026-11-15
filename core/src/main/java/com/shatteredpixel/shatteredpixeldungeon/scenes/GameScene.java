@@ -1911,7 +1911,7 @@ if (coopUpdateTimer <= 0f) {
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 	@Override
 		public void onSelect( Integer cell ) {
-			Boolean kturn = true;
+		/*	Boolean kturn = true;
 			Bundle snapshotk1 = new Bundle();
 				Bundle snapshotk2 = new Bundle();
 			if(Dungeon.kr14==0)
@@ -1937,18 +1937,18 @@ if (coopUpdateTimer <= 0f) {
 			
 				Dungeon.hero.next();
 			}
-			}
-		if (Dungeon.kr14%2==0 && kturn && cell!= null)
+			}*/
+	//	if (Dungeon.kr14%2==0 && kturn && cell!= null)
 		{
 			if(Dungeon.comrade!=null)
 			{
-				if(Dungeon.thekr!=null)
+			/*	if(Dungeon.thekr!=null)
 				{
 					Dungeon.thekr.storeInBundle(snapshotk1);
 					Dungeon.hero.restoreFromBundle(snapshotk1);
 				}
 				Dungeon.kr14++;
-				
+				*/
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
