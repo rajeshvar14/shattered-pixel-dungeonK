@@ -1911,7 +1911,7 @@ if (coopUpdateTimer <= 0f) {
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 	@Override
 		public void onSelect( Integer cell ) {
-		/*	Boolean kturn = true;
+			Boolean kturn = true;
 			Bundle snapshotk1 = new Bundle();
 				Bundle snapshotk2 = new Bundle();
 			if(Dungeon.kr14==0)
@@ -1921,13 +1921,20 @@ if (coopUpdateTimer <= 0f) {
 		//	Dungeon.hero.pos = Dungeon.kr14;
 			if(Dungeon.kr14%2==1 && Dungeon.comrade!=null)
 			{
+				if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
+				{
 				Dungeon.kr14++;
+				Dungeon.ktrn=Dungeon.comrade.targetCell;
+				
 		     	kturn = false;
 				Dungeon.thekr=new Hero();
-				Dungeon.hero.storeInBundle(snapshotk1);
+				/*Dungeon.hero.storeInBundle(snapshotk1);
 				Dungeon.thekr.restoreFromBundle(snapshotk1);
 				Dungeon.comrade.storeInBundle(snapshotk2);
-				Dungeon.hero.restoreFromBundle(snapshotk2);
+				Dungeon.hero.restoreFromBundle(snapshotk2);*/
+				Dungeon.thekr.pos=Dungeon.hero.pos;
+				Dungeon.hero.pos=Dungeon.comrade.pos;
+				
 				
 		if (Dungeon.hero.handle( Dungeon.comrade.targetCell )) {
 			//Dungeon.hero.storeInBundle(snapshotk2);
@@ -1936,19 +1943,22 @@ if (coopUpdateTimer <= 0f) {
 			
 			
 				Dungeon.hero.next();
+		}
 			}
-			}*/
-	//	if (Dungeon.kr14%2==0 && kturn && cell!= null)
+			}
+		if (Dungeon.kr14%2==0 && kturn && cell!= null)
 		{
 			if(Dungeon.comrade!=null)
 			{
-			/*	if(Dungeon.thekr!=null)
+				if(Dungeon.thekr!=null)
 				{
-					Dungeon.thekr.storeInBundle(snapshotk1);
-					Dungeon.hero.restoreFromBundle(snapshotk1);
+					Dungeon.hero.pos=Dungeon.thekr.pos;
+		
+				//	Dungeon.thekr.storeInBundle(snapshotk1);
+				//	Dungeon.hero.restoreFromBundle(snapshotk1);
 				}
 				Dungeon.kr14++;
-				*/
+				
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
