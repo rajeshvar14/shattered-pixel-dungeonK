@@ -261,7 +261,7 @@ public static void installReceivedLevel(byte[] payload, boolean initializeRun,
                  "Could not stop actor processing before installing the co-op floor.");
         }
        Actor.clear();
-         Dungeon.switchLevel(level, guestPosition);
+       //  Dungeon.switchLevel(level, guestPosition);
         Dungeon.switchLevel(level, guestPosition);
         Dungeon.setCoOpComradePosition(hostPosition);
     }
