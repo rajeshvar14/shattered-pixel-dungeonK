@@ -1933,7 +1933,7 @@ if (coopUpdateTimer <= 0f) {
 				Dungeon.ktrn=Dungeon.comrade.targetCell;
 				
 		     	kturn = false;
-					char kh = Actor.findChar(Dungeon.comrade.targetCell);
+					Char kh = Actor.findChar(Dungeon.comrade.targetCell);
 					if( kh instanceof Mob)
 					{
 				
