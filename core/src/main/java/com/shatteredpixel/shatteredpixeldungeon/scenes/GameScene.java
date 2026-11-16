@@ -1927,14 +1927,15 @@ if (coopUpdateTimer <= 0f) {
 		//	Dungeon.hero.pos = Dungeon.kr14;
 			if(Dungeon.kr14%2==1 && Dungeon.comrade!=null)
 			{
-				if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
+				//if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
+				if(Dungeon.comrade.pos!=Dungeon.ktrn)
 				{
 					Dungeon.kr14++;
-				Dungeon.ktrn=Dungeon.comrade.targetCell;
+				Dungeon.ktrn=Dungeon.comrade.pos;
 				
 		     	kturn = false;
-					Char kh = Actor.findChar(Dungeon.comrade.targetCell);
-					if( kh instanceof Mob)
+					//Char kh = Actor.findChar(Dungeon.comrade.);
+				//	if( kh instanceof Mob)
 					{
 				
 				Dungeon.thekr=new Hero();
@@ -1973,6 +1974,7 @@ if (coopUpdateTimer <= 0f) {
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
+				localTargetCell = cell;
 				Dungeon.hero.next();
 			}
 			
