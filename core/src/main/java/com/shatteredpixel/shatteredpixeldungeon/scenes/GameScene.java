@@ -219,6 +219,7 @@ private int displayedComradePos = -1;
 	private ActionIndicator action;
 	private ResumeIndicator resume;
 
+	
 	{
 		inGameScene = true;
 	}
@@ -1918,8 +1919,8 @@ if (coopUpdateTimer <= 0f) {
 	@Override
 		public void onSelect( Integer cell ) {
 			Boolean kturn = true;
-			Bundle snapshotk1 = new Bundle();
-				Bundle snapshotk2 = new Bundle();
+		//	Bundle snapshotk1 = new Bundle();
+			//	Bundle snapshotk2 = new Bundle();
 			if(Dungeon.kr14==0)
 			{
 			Dungeon.thekr=null;
@@ -1927,11 +1928,14 @@ if (coopUpdateTimer <= 0f) {
 		//	Dungeon.hero.pos = Dungeon.kr14;
 			if(Dungeon.kr14%2==1 && Dungeon.comrade!=null)
 			{
-				//if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
-				if(Dungeon.comrade.pos!=Dungeon.ktrn)
+				if(Dungeon.ktrn==Dungeon.comrade.targetCell)
+				{
+					GLog.h("comrade's turn");
+				}
+				if (Dungeon.comrade.targetCell!=-1 && Dungeon.ktrn!=Dungeon.comrade.targetCell)
 				{
 					Dungeon.kr14++;
-				Dungeon.ktrn=Dungeon.comrade.pos;
+				Dungeon.ktrn=Dungeon.comrade.targetCell;
 				
 		     	kturn = false;
 					//Char kh = Actor.findChar(Dungeon.comrade.);
@@ -1952,7 +1956,7 @@ if (coopUpdateTimer <= 0f) {
 			//Dungeon.comrade.restoreFromBundle(snapshotk2);
 			//Dungeon.therk.storeInBundle(snapshotk);
 			
-			
+			GLog.h("swapped");
 				Dungeon.hero.next();
 		}
 		}
@@ -1965,7 +1969,7 @@ if (coopUpdateTimer <= 0f) {
 				if(Dungeon.thekr!=null)
 				{
 					Dungeon.hero.pos=Dungeon.thekr.pos;
-		
+		GLog.h("reset swap");
 				//	Dungeon.thekr.storeInBundle(snapshotk1);
 				//	Dungeon.hero.restoreFromBundle(snapshotk1);
 				}
@@ -1974,7 +1978,7 @@ if (coopUpdateTimer <= 0f) {
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
-				localTargetCell = cell;
+				Dungeon.hero.targetCell = cell;
 				Dungeon.hero.next();
 			}
 			
