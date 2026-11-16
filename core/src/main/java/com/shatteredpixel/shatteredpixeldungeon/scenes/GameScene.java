@@ -1978,7 +1978,7 @@ if (coopUpdateTimer <= 0f) {
 			}
 			if (Dungeon.hero.handle( cell ))
 			{
-				Dungeon.hero.targetCell = cell;
+				    CoOpScene.noteLocalTargetCell(cell);
 				Dungeon.hero.next();
 			}
 			
