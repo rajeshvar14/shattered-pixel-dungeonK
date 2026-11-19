@@ -261,7 +261,12 @@ public abstract class Mob extends Char {
 	
 	@Override
 	protected boolean act() {
-		
+		if(Dungeon.joinedk){
+			if(Dungeon.comrademob)
+			{
+				synkmob();
+				Dungeon.comrademob=false;
+			}
 		super.act();
 		
 		boolean justAlerted = alerted;
@@ -310,6 +315,12 @@ public abstract class Mob extends Char {
 		}
 
 		return result;
+	}
+		else
+		{
+			sendmob();
+			synkmob();
+		}
 	}
 
 	private float timeSeenAt = Float.MAX_VALUE;
