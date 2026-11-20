@@ -319,7 +319,10 @@ public abstract class Mob extends Char {
 		else
 		{
 			sendmob();
-			synkmob();
+			if(mobpkt!=null)
+			{
+			synkmob(mobpkt.mobid,mobpkt.pos,mobpkt.hp,mobpkt.maxhp,mobpkt.state,mobpkt.action,mobpkt.target);
+			}
 		}
 	}
 
