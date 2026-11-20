@@ -323,6 +323,16 @@ public abstract class Mob extends Char {
 		}
 	}
 
+	public void synkmob(int mobId, int pos, int hp, int maxHp, byte state, byte action, int targetPos) {
+        this.mobId = mobId;
+        this.pos = pos;
+        this.hp = hp;
+        this.maxHp = maxHp;
+        this.state = state;
+        this.action = action;
+        this.targetPos = targetPos;
+	}
+	
 	private float timeSeenAt = Float.MAX_VALUE;
 
 	protected void processSwarmIntel( boolean enemyInFOV ){
