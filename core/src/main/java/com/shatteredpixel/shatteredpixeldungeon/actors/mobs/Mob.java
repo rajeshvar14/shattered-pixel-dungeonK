@@ -165,7 +165,58 @@ public abstract class Mob extends Char {
 	private static final String INVEST_TURNS = "invest_turns";
 	private static final String WANDER_POSITIONS = "wander_positions";
 	private static final String WANDER_POS_IDX = "wander_pos_idx";
-	
+
+
+	// Add inside Mob.
+
+public byte coOpStateCode() {
+	if (state == SLEEPING)      return 0;
+	if (state == WANDERING)     return 1;
+	if (state == INVESTIGATING) return 2;
+	if (state == HUNTING)       return 3;
+	if (state == FLEEING)       return 4;
+	return 5; // PASSIVE
+}
+
+public int coOpTarget() {
+	return target;
+}
+
+/** Applies a host snapshot on the joining phone; does not run mob AI or rewards. */
+public void applyCoOpState(int newPos, int newHP, int newHT,
+						   byte stateCode, int newTarget,
+						   float hostCooldown, boolean alive) {
+	int oldPos = pos;
+
+	pos = newPos;
+	HP = newHP;
+	HT = newHT;
+	target = newTarget;
+
+	switch (stateCode) {
+		case 0: state = SLEEPING; break;
+		case 1: state = WANDERING; break;
+		case 2: state = INVESTIGATING; break;
+		case 3: state = HUNTING; break;
+		case 4: state = FLEEING; break;
+		default: state = PASSIVE; break;
+	}
+
+	// Keep the joiner's actor schedule roughly aligned with the host.
+	spendConstant(hostCooldown - cooldown());
+
+	if (alive) {
+		Dungeon.level.occupyCell(this);
+		if (sprite != null && oldPos != newPos) {
+			sprite.move(oldPos, newPos);
+		}
+	} else {
+		HP = 0;
+		Dungeon.level.mobs.remove(this);
+		Actor.remove(this);
+		if (sprite != null) sprite.die();
+	}
+}
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		
