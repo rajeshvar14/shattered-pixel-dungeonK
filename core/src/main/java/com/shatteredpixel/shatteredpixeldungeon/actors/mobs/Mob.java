@@ -261,12 +261,12 @@ public abstract class Mob extends Char {
 	
 	@Override
 	protected boolean act() {
-		if(Dungeon.joinedk){
-			if(Dungeon.comrademob)
+		//if(Dungeon.joinedk){
+		/*	if(Dungeon.comrademob)
 			{
 				synkmob();
 				Dungeon.comrademob=false;
-			}
+			}*/
 		super.act();
 		
 		boolean justAlerted = alerted;
@@ -315,18 +315,18 @@ public abstract class Mob extends Char {
 		}
 
 		return result;
-	}
-		else
+	//}
+		/*else
 		{
 			sendmob();
 			if(mobpkt!=null)
 			{
 			synkmob(mobpkt.mobid,mobpkt.pos,mobpkt.hp,mobpkt.maxhp,mobpkt.state,mobpkt.action,mobpkt.target);
 			}
-		}
+		}*/
 	}
 
-	public void synkmob(int mobId, int pos, int hp, int maxHp, byte state, byte action, int targetPos) {
+	/*public void synkmob(int mobId, int pos, int hp, int maxHp, byte state, byte action, int targetPos) {
         this.mobId = mobId;
         this.pos = pos;
         this.hp = hp;
@@ -334,7 +334,7 @@ public abstract class Mob extends Char {
         this.state = state;
         this.action = action;
         this.targetPos = targetPos;
-	}
+	}*/
 	
 	private float timeSeenAt = Float.MAX_VALUE;
 
