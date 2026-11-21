@@ -41,6 +41,8 @@ public class Rat extends Mob {
 
 	@Override
 	protected boolean act() {
+		boolean k2 = true;
+		int kid = this.id();
 		if (alignment != Alignment.ALLY
 				&& Dungeon.level.heroFOV[pos]
 				&& Dungeon.hero.armorAbility instanceof Ratmogrify){
@@ -48,7 +50,13 @@ public class Rat extends Mob {
 			if (enemy == Dungeon.hero) enemy = null;
 			if (state == SLEEPING) state = WANDERING;
 		}
-		return super.act();
+		k2 = super.act();
+		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.hp,this.state);
+		if (NetworkManager.isConnected()) {
+    NetworkManager.getDispatcher().send(k3);
+		}
+		
+		return k2;
 	}
 
 	@Override
