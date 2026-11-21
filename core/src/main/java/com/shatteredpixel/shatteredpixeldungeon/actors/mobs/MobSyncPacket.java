@@ -2,7 +2,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class MobSyncPacket {
+public class MobSyncPacket implements NetPackets{
     // Action constants
     public static final byte ACTION_NONE   = 0;
     public static final byte ACTION_MOVE   = 1;
