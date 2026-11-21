@@ -33,8 +33,12 @@ public class MobSyncPacket {
         this.action = action;
         this.targetPos = targetPos;
     }
-
+@Override
+    public byte getType(){
+        return TYPE_MOV_SYNC;
+    }
     // Serialize directly to TCP stream
+    @Override
     public void writeTo(DataOutputStream out) throws IOException {
         out.writeInt(mobId);
         out.writeInt(pos);
