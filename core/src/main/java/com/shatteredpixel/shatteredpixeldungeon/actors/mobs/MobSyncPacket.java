@@ -1,6 +1,12 @@
+package com.shatteredpixel.shatteredpixeldungeon.actors.mobs; // (match your exact subfolder)
+
+import com.shatteredpixel.shatteredpixeldungeon.NetPacket;
+
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 
 public class MobSyncPacket implements NetPackets{
     // Action constants
