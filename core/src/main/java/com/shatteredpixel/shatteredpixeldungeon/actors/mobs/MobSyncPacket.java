@@ -30,18 +30,18 @@ public class MobSyncPacket implements NetPackets{
     public final byte action;
     public final int targetPos; // Used if action is MOVE or ATTACK
 
-    public MobSyncPacket(int mobId, int pos, int hp, int maxHp, byte state, byte action, int targetPos) {
+    public MobSyncPacket(int mobId, int pos, int hp, byte state ) {
         this.mobId = mobId;
         this.pos = pos;
         this.hp = hp;
-        this.maxHp = maxHp;
+      //this.maxHp = maxHp;
         this.state = state;
-        this.action = action;
-        this.targetPos = targetPos;
+       // this.action = action;
+        //this.targetPos = targetPos;
     }
 @Override
     public byte getType(){
-        return TYPE_MOV_SYNC;
+        return TYPE_MOB_SYNC;
     }
     // Serialize directly to TCP stream
     @Override
@@ -49,10 +49,10 @@ public class MobSyncPacket implements NetPackets{
         out.writeInt(mobId);
         out.writeInt(pos);
         out.writeInt(hp);
-        out.writeInt(maxHp);
+       // out.writeInt(maxHp);
         out.writeByte(state);
-        out.writeByte(action);
-        out.writeInt(targetPos);
+      //  out.writeByte(action);
+      //  out.writeInt(targetPos);
     }
 
     // Deserialize directly from TCP stream
@@ -60,10 +60,10 @@ public class MobSyncPacket implements NetPackets{
         int mobId     = in.readInt();
         int pos       = in.readInt();
         int hp        = in.readInt();
-        int maxHp     = in.readInt();
-        byte state    = in.readByte();
-        byte action   = in.readByte();
-        int targetPos = in.readInt();
-        return new MobSyncPacket(mobId, pos, hp, maxHp, state, action, targetPos);
+     //   int maxHp     = in.readInt();
+     /  byte state    = in.readByte();
+     /*   byte action   = in.readByte();
+        int targetPos = in.readInt();*/
+        return new MobSyncPacket(mobId, pos, hp , state);
     }
   }
