@@ -195,9 +195,9 @@ private void chooseJoiningClass() {
                         throw new IllegalStateException(
                                 "The joining phone did not confirm the initial level bundle.");
                     }
-
-                    beginSession(socket, in, out, true);
                     keepSession = true;
+                    beginSession(socket, in, out, true);
+                    
 
                     final int guestPosition = snapshot.guestPosition;
                     postStatus("Shared Dungeon Ready",
@@ -210,6 +210,9 @@ private void chooseJoiningClass() {
                                     ShatteredPixelDungeon.switchScene(GameScene.class);
                                 }
                             });
+
+                    LanStreamDispatcher dispatcher = new LanStreamDispatcher(socket);
+                    dispatcher.start();
 
                     readHostFrames(in);
                 } catch (final Exception e) {
@@ -350,6 +353,9 @@ private void chooseJoiningClass() {
                         }
                     });
 
+                    LanStreamDispatcher dispatcher = new LanStreamDispatcher(socket);
+                    dispatcher.start();
+
                     readJoinFrames(in);
                 } catch (final Exception e) {
                     if (!cancelled && !pausedForResume) {
@@ -386,6 +392,7 @@ private void chooseJoiningClass() {
         sendSequence = 0;
         receiveSequence = 0;
         localTargetCell = -1;
+        
     }
 
     /**
