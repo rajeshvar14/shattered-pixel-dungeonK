@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 
-public class MobSyncPacket implements NetPackets{
+public class MobSyncPacket implements NetPacket{
     // Action constants
     public static final byte ACTION_NONE   = 0;
     public static final byte ACTION_MOVE   = 1;
