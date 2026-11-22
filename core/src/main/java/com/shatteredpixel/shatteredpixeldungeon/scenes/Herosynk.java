@@ -7,8 +7,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Herosynk implements Netpackets
+public class Herosynk implements Netpacket
   {
+    
     byte[] k1;
     public void herodata(byte[] payload)
     {
@@ -16,7 +17,7 @@ public class Herosynk implements Netpackets
       // out.writeInt(payload.length);
       if(payload!=null)
       {
-        k1=payload;
+      //  k1=payload;
       }
         //  out.flush();
     }
@@ -27,6 +28,6 @@ public class Herosynk implements Netpackets
     @Override
     public void writeTo(DataOutputStream out) throws IOException
     {
-      out.write(k1);
+  //    out.write(k1);
     }
   }
