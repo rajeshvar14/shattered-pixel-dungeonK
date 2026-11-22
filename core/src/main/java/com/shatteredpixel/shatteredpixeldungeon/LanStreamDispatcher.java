@@ -72,9 +72,9 @@ public class LanStreamDispatcher {
                     NetPacket received = null;
 
                     switch (type) {
-                        case NetPacket.TYPE_LEVEL_SNAPSHOT:
+                      /*  case NetPacket.TYPE_LEVEL_SNAPSHOT:
                             received = LevelSnapshotPacket.readFrom(in);
-                            break;
+                            break;*/
                         case NetPacket.TYPE_MOB_SYNC:
                             received = MobSyncPacket.readFrom(in);
                             break;
