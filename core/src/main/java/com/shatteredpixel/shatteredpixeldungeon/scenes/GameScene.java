@@ -21,6 +21,10 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.LanStreamDispatcher;
+import com.shatteredpixel.shatteredpixeldungeon.NetPacket;
+import com.shatteredpixel.shatteredpixeldungeon.NetworkManager;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.MobSyncPacket;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -1050,7 +1054,7 @@ if (coopUpdateTimer <= 0f) {
 		return result;
 	}
 
-	private void processNetworkPackets() {
+	private void processrekdata() {
     LanStreamDispatcher disp = NetworkManager.getDispatcher();
     if (disp == null) return;
 
