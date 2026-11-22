@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Actor.Mobs.java;
+
+import com.shatteredpixel.shatteredpixeldungeon.Actor.mobs.MobSyncPacket;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
