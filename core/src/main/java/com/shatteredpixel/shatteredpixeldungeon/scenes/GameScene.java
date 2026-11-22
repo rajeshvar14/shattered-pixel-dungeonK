@@ -1121,7 +1121,7 @@ mob.state=pkt.state;
             if (mob.sprite != null) mob.sprite.place(pkt.pos);
         }
     }*/
-	if(mob.hp<pkt.hp)
+	if(mob.HP<pkt.hp)
 	{	
 		mob.HP=pkt.hp;
        /* if (mob.sprite != null && pkt.targetPos >= 0) {
