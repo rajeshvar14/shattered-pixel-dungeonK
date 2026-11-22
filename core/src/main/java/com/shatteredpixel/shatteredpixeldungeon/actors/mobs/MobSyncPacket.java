@@ -29,8 +29,8 @@ public class MobSyncPacket implements NetPacket{
     public final byte state;
     public final byte action;
     public final int targetPos; // Used if action is MOVE or ATTACK
-
-    public MobSyncPacket(int mobId, int pos, int hp, byte state ) {
+  public Aistate k4= SLEEPING;
+    public MobSyncPacket(int mobId, int pos, int hp, Aistate state ) {
         this.mobId = mobId;
         this.pos = pos;
         this.hp = hp;
@@ -50,7 +50,7 @@ public class MobSyncPacket implements NetPacket{
         out.writeInt(pos);
         out.writeInt(hp);
        // out.writeInt(maxHp);
-        out.writeByte(state);
+        out.writeString(state.TAG);
       //  out.writeByte(action);
       //  out.writeInt(targetPos);
     }
@@ -61,9 +61,22 @@ public class MobSyncPacket implements NetPacket{
         int pos       = in.readInt();
         int hp        = in.readInt();
      //   int maxHp     = in.readInt();
-       byte state    = in.readByte();
+        String state = In.readString();
+if (state.equals( SLEEPING.TAG )) {
+    this.state = SLEEPING;
+} else if (state.equals( WANDERING.TAG )) {
+    this.state = WANDERING;
+} else if (state.equals( HUNTING.TAG )) {
+    this.state = HUNTING;
+} else if (state.equals( FLEEING.TAG )) {
+    this.state = FLEEING;
+} else if (state.equals( PASSIVE.TAG )) {
+    this.state = PASSIVE;
+}
+        
+     //  byte state    = in.readByte();
      /*   byte action   = in.readByte();
         int targetPos = in.readInt();*/
-        return new MobSyncPacket(mobId, pos, hp , state);
+        return new MobSyncPacket(mobId, pos, hp , this.state);
     }
   }
