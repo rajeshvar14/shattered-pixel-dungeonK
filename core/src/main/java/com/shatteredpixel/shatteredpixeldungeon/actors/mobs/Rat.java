@@ -51,7 +51,7 @@ public class Rat extends Mob {
 			if (state == SLEEPING) state = WANDERING;
 		}
 		k2 = super.act();
-		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.hp,this.state);
+		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.HP,this.state);
 		if (NetworkManager.isConnected()) {
     NetworkManager.getDispatcher().send(k3);
 		}
