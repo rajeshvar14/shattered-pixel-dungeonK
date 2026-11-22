@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Herosynk implements Netpacket
+public class Herosynk implements NetPacket
   {
     
     byte[] k1;
