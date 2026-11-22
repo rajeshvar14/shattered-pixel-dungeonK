@@ -61,7 +61,7 @@ public class MobSyncPacket implements NetPackets{
         int pos       = in.readInt();
         int hp        = in.readInt();
      //   int maxHp     = in.readInt();
-     /  byte state    = in.readByte();
+       byte state    = in.readByte();
      /*   byte action   = in.readByte();
         int targetPos = in.readInt();*/
         return new MobSyncPacket(mobId, pos, hp , state);
