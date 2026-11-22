@@ -956,6 +956,10 @@ if (coopUpdateTimer <= 0f) {
     comradeSprite.place(Dungeon.comrade.pos);
     displayedComradePos = Dungeon.comrade.pos;
 	}
+
+   processrekdata();
+	
+	
 }
 		if (notifyDelay > 0) notifyDelay -= Game.elapsed;
 
@@ -1045,6 +1049,83 @@ if (coopUpdateTimer <= 0f) {
 		}
 		return result;
 	}
+
+	private void processNetworkPackets() {
+    LanStreamDispatcher disp = NetworkManager.getDispatcher();
+    if (disp == null) return;
+
+    NetPacket pkt;
+    while ((pkt = disp.pollReceived()) != null) {
+        if (pkt instanceof MobSyncPacket) {
+            applyMobSync((MobSyncPacket) pkt);
+        } /*else if (pkt instanceof LevelSnapshotPacket) {
+            applyLevelSnapshot((LevelSnapshotPacket) pkt);
+        }*/
+    }
+}
+
+private void applyMobSync(MobSyncPacket pkt) {
+    Actor actor = Actor.findById(pkt.mobId);
+    if (!(actor instanceof Mob)) {
+        return; // Mob not spawned yet or already removed
+    }
+
+    Mob mob = (Mob) actor;
+
+    // 1. Sync health stats
+  //  mob.HT = pkt.maxHp;
+  //  mob.HP = pkt.hp;
+mob.state=pkt.state;
+    // 2. Handle death first
+  //if (pkt.action == MobSyncPacket.ACTION_DIE || pkt.hp <= 0) {
+	if(pkt.hp<=0){
+        if (mob.isAlive()) {
+            mob.die(null);
+        }
+        return;
+    }
+
+    // 3. Handle movement
+  //  if (pkt.action == MobSyncPacket.ACTION_MOVE) {
+	if(mob.pos!=pkt.pos){
+        int oldPos = mob.pos;
+        mob.pos = pkt.pos;
+        Dungeon.level.occupyCell(mob); // Updates level collision grid
+
+        if (mob.sprite != null && oldPos != pkt.pos) {
+            mob.sprite.move(oldPos, pkt.pos);
+        }
+    }
+    // 4. Handle attack animation
+ /*   else if (pkt.action == MobSyncPacket.ACTION_ATTACK) {
+        // Snap position first in case a move packet was skipped
+        if (mob.pos != pkt.pos) {
+            mob.pos = pkt.pos;
+            Dungeon.level.occupyCell(mob);
+            if (mob.sprite != null) mob.sprite.place(pkt.pos);
+        }
+
+        if (mob.sprite != null && pkt.targetPos >= 0) {
+            mob.sprite.attack(pkt.targetPos);
+        }
+    }*/
+    // 5. Fallback state/HP sync
+   /* else {
+        if (mob.pos != pkt.pos) {
+            mob.pos = pkt.pos;
+            Dungeon.level.occupyCell(mob);
+            if (mob.sprite != null) mob.sprite.place(pkt.pos);
+        }
+    }*/
+	if(mob.hp<pkt.hp)
+	{	
+		mob.HP=pkt.hp;
+       /* if (mob.sprite != null && pkt.targetPos >= 0) {
+            mob.sprite.attack(pkt.targetPos);
+	}*/
+	}
+}
+	
 
 	private boolean tagAttack    = false;
 	private boolean tagLoot      = false;
