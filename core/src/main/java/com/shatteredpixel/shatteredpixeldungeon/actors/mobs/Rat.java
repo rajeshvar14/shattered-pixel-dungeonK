@@ -21,7 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import com.shatteredpixel.shatteredpixeldungeon.NetworkManager;
-import com.shatteredpixel.shatteredpixeldungeon.LanSteeamDispatcher;
+import com.shatteredpixel.shatteredpixeldungeon.LanStreamDispatcher;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.Ratmogrify;
