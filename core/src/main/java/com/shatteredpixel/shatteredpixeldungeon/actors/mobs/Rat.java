@@ -44,17 +44,17 @@ public class Rat extends Mob {
 	protected boolean act() {
 		boolean k2 = true;
 		int kid = this.id();
-		String state;
+	//	String state;
 		
 		if (alignment != Alignment.ALLY
 				&& Dungeon.level.heroFOV[pos]
 				&& Dungeon.hero.armorAbility instanceof Ratmogrify){
 			alignment = Alignment.NEUTRAL;
 			if (enemy == Dungeon.hero) enemy = null;
-			if (state == SLEEPING) state = WANDERING;
+	//		if (state == SLEEPING) state = WANDERING;
 		}
 		k2 = super.act();
-
+/*
 if (state == SLEEPING) {
 			//bundle.put( STATE, Sleeping.TAG );
 	state="sleeping";
@@ -73,9 +73,9 @@ if (state == SLEEPING) {
 		} else if (state == PASSIVE) {
 	state="passive";
 		//	bundle.put( STATE, Passive.TAG );
-}
+}*/
 		
-		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.HP,state);
+		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.HP);
 		if (NetworkManager.isConnected()) {
     NetworkManager.getDispatcher().send(k3);
 		}
