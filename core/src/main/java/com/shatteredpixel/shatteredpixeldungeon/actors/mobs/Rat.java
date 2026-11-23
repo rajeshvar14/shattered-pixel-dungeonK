@@ -44,7 +44,7 @@ public class Rat extends Mob {
 	protected boolean act() {
 		boolean k2 = true;
 		int kid = this.id();
-		string state;
+		String state;
 		
 		if (alignment != Alignment.ALLY
 				&& Dungeon.level.heroFOV[pos]
