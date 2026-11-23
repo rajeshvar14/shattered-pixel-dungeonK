@@ -1076,7 +1076,7 @@ private void applyMobSync(MobSyncPacket pkt) {
 
     Mob mob = (Mob) actor;
 
-	if (pkt.state == "sleeping") {
+/*	if (pkt.state == "sleeping") {
 		//	bundle.put( STATE, Sleeping.TAG );
 		mob.state= SLEEPING;
 		} else if (state == "wandering") {
@@ -1094,7 +1094,7 @@ private void applyMobSync(MobSyncPacket pkt) {
 		} else if (state == "passive") {
 		mob.state= mob.PASSIVE;
 		//	bundle.put( STATE, Passive.TAG );
-	}
+	}*/
     // 1. Sync health stats
   //  mob.HT = pkt.maxHp;
   //  mob.HP = pkt.hp;
@@ -1117,6 +1117,7 @@ private void applyMobSync(MobSyncPacket pkt) {
 
         if (mob.sprite != null && oldPos != pkt.pos) {
             mob.sprite.move(oldPos, pkt.pos);
+			mob.state = mob.WANDERING;
         }
     }
     // 4. Handle attack animation
@@ -1143,6 +1144,7 @@ private void applyMobSync(MobSyncPacket pkt) {
 	if(mob.HP<pkt.hp)
 	{	
 		mob.HP=pkt.hp;
+		mob.state = mob.HUNTING;
        /* if (mob.sprite != null && pkt.targetPos >= 0) {
             mob.sprite.attack(pkt.targetPos);
 	}*/
