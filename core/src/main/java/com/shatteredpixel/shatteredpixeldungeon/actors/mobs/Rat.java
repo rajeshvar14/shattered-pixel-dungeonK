@@ -44,6 +44,8 @@ public class Rat extends Mob {
 	protected boolean act() {
 		boolean k2 = true;
 		int kid = this.id();
+		string state;
+		
 		if (alignment != Alignment.ALLY
 				&& Dungeon.level.heroFOV[pos]
 				&& Dungeon.hero.armorAbility instanceof Ratmogrify){
@@ -52,7 +54,28 @@ public class Rat extends Mob {
 			if (state == SLEEPING) state = WANDERING;
 		}
 		k2 = super.act();
-		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.HP,this.state);
+
+if (state == SLEEPING) {
+			//bundle.put( STATE, Sleeping.TAG );
+	state="sleeping";
+		} else if (state == WANDERING) {
+	state="wandering";
+			//bundle.put( STATE, Wandering.TAG );
+		} else if (state == INVESTIGATING) {
+	state="investigating";
+			//bundle.put( STATE, Investigating.TAG );
+		} else if (state == HUNTING) {
+	state="hunting";
+		//	bundle.put( STATE, Hunting.TAG );
+		} else if (state == FLEEING) {
+	state="fleeing";
+			//bundle.put( STATE, Fleeing.TAG );
+		} else if (state == PASSIVE) {
+	state="passive";
+		//	bundle.put( STATE, Passive.TAG );
+}
+		
+		MobSyncPacket k3 = new MobSyncPacket (kid, this.pos,this.HP,state);
 		if (NetworkManager.isConnected()) {
     NetworkManager.getDispatcher().send(k3);
 		}
