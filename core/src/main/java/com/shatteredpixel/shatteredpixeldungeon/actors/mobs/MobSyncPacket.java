@@ -61,7 +61,7 @@ public class MobSyncPacket implements NetPacket{
         int pos       = in.readInt();
         int hp        = in.readInt();
      //   int maxHp     = in.readInt();
-        String state = In.readString();
+        String state = in.readString();
 /*if (state.equals( SLEEPING.TAG )) {
     this.state = SLEEPING;
 } else if (state.equals( WANDERING.TAG )) {
