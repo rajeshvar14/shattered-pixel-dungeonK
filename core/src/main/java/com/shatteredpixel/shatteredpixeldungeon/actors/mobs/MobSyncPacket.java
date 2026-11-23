@@ -25,10 +25,10 @@ public class MobSyncPacket implements NetPacket{
     public final int mobId;
     public final int pos;
     public final int hp;
-    public final int maxHp;
-    public final String state;
-    public final byte action;
-    public final int targetPos; // Used if action is MOVE or ATTACK
+  //  public final int maxHp;
+ //   public final String state;
+   // public final byte action;
+  //  public final int targetPos; // Used if action is MOVE or ATTACK
 //  public Mob.AiState k4= new Sleeping();
     public MobSyncPacket(int mobId, int pos, int hp) {
         this.mobId = mobId;
