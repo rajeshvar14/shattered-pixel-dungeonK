@@ -2,8 +2,8 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.shatteredpixeldungeon;
-import com.shatteredpixel.shatteredpixeldungeon.shatteredpixeldungeon.LanStreamDispatcher;
+//import com.shatteredpixel.shatteredpixeldungeon;
+import com.shatteredpixel.shatteredpixeldungeon.LanStreamDispatcher;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 
