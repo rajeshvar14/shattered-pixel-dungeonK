@@ -1076,10 +1076,29 @@ private void applyMobSync(MobSyncPacket pkt) {
 
     Mob mob = (Mob) actor;
 
+	if (pkt.state == "sleeping") {
+		//	bundle.put( STATE, Sleeping.TAG );
+		mob.state= SLEEPING;
+		} else if (state == "wandering") {
+		mob.state= mob.WANDERING;
+		//	bundle.put( STATE, Wandering.TAG );
+		} else if (state == "investigating") {
+		mob.state = mob.INVESTIGATING;
+		//	bundle.put( STATE, Investigating.TAG );
+		} else if (state == "hunting") {
+		mob.state = mob.HUNTING;
+			//bundle.put( STATE, Hunting.TAG );
+		} else if (state == "fleeing") {
+		mob.state= mob.FLEEING;
+			//bundle.put( STATE, Fleeing.TAG );
+		} else if (state == "passive") {
+		mob.state= mob.PASSIVE;
+		//	bundle.put( STATE, Passive.TAG );
+	}
     // 1. Sync health stats
   //  mob.HT = pkt.maxHp;
   //  mob.HP = pkt.hp;
-mob.state=pkt.state;
+//mob.state=pkt.state;
     // 2. Handle death first
   //if (pkt.action == MobSyncPacket.ACTION_DIE || pkt.hp <= 0) {
 	if(pkt.hp<=0){
