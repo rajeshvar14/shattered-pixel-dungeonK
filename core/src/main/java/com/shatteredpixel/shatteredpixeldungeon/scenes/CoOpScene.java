@@ -214,8 +214,8 @@ private void chooseJoiningClass() {
 
                     LanStreamDispatcher dispatcher = new LanStreamDispatcher(socket);
                     dispatcher.start();
-
-                    readHostFrames(in);
+NetworkManager.setDispatcher(dispatcher);
+                  //  readHostFrames(in);
                 } catch (final Exception e) {
                     if (!cancelled && !pausedForResume) {
                         postStatus("Host Connection Failed", readableError(e),
@@ -356,8 +356,8 @@ private void chooseJoiningClass() {
 
                     LanStreamDispatcher dispatcher = new LanStreamDispatcher(socket);
                     dispatcher.start();
-
-                    readJoinFrames(in);
+NetworkManager.setDispatcher(dispatcher);
+                  //  readJoinFrames(in);
                 } catch (final Exception e) {
                     if (!cancelled && !pausedForResume) {
                         postStatus("Join Failed", readableError(e), "Back",
@@ -435,12 +435,12 @@ public static void publishLocalState(int position, int targetCell) {
             throw new IllegalStateException("Invalid co-op player state size.");
         }
 
-        synchronized (out) {
+   /*     synchronized (out) {
             out.writeByte(FRAME_STATE);
             out.writeInt(payload.length);
             out.write(payload);
             out.flush();
-        }
+        }*/
     } catch (Exception e) {
         endSession();
     }
@@ -507,12 +507,12 @@ public static void publishLocalState(int position, int targetCell) {
             throw new IllegalStateException("Invalid level snapshot.");
         }
 
-        synchronized (out) {
+      /*  synchronized (out) {
             out.writeByte(FRAME_LEVEL);
             out.writeInt(payload.length);
             out.write(payload);
             out.flush();
-        }
+        }*/
     }
 
     private void readHostFrames(DataInputStream in) throws Exception {
