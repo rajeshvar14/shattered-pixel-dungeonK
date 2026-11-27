@@ -30,4 +30,7 @@ public class Herosynk implements NetPacket
     {
   //    out.write(k1);
     }
+    public static Herosynk readfrom(DataInputStream in)
+    {
+    }
   }
